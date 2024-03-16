@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
 import {beforeAll, afterAll, beforeEach, afterEach, describe, expect, it} from 'vitest';
-import { createFilesTable, createFileTagsTable, createTagsTable, Files, Tags} from '../../../src/lib/utils/scheme/files';
+import { createFilesTable, createFileTagsTable, createTagsTable, Files, Tags} from '../../../../src/lib/utils/scheme/files';
 
 describe("createFileTable", () => {
     let db: Knex;
