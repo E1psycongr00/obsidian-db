@@ -9,12 +9,18 @@ interface Tag {
     name: string;
 }
 
+interface Metadata {
+    title?: string;
+    date?: string;
+    tags?: string[] | [];
+}
+
 interface File {
     id?: number;
     filePath: string;
     urlPath: string;
     fileType: string;
-    metadata?:{[key:string]:string}
+    metadata: Metadata;
 };
 
 interface FileTag {
@@ -60,6 +66,7 @@ async function createFileTagsTable(db: Knex) {
 }
 
 export {
+    Metadata,
     Files,
     File,
     createFilesTable,
