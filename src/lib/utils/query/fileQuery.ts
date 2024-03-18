@@ -53,7 +53,7 @@ async function batchInsertFiles(
     });
 }
 
-interface SelectCondition {
+interface SelectFileCondition {
     where?: {
         id?: number;
         filePath?: string;
@@ -64,7 +64,7 @@ interface SelectCondition {
     limit?: number;
 }
 
-async function findFiles(db: Knex, condition: SelectCondition) {
+async function findFiles(db: Knex, condition: SelectFileCondition) {
     const query = db("files").select("*");
     if (condition.where) {
         Object.entries(condition.where).forEach(([key, value]) => {
@@ -91,6 +91,7 @@ async function findFiles(db: Knex, condition: SelectCondition) {
     });
 }
 
+
 function extractTagName(file: File) {
     return file.metadata.tags || [];
 }
@@ -100,4 +101,4 @@ function extractTags(files: File[]) {
     return Array.from(tags).map(tag => ({ name: tag } as Tag));
 }
 
-export { SelectCondition, batchInsertFiles, findFiles };
+export { SelectFileCondition, batchInsertFiles, findFiles };
