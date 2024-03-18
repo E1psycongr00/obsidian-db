@@ -21,7 +21,7 @@ interface File {
     urlPath: string;
     fileType: string;
     metadata: Metadata;
-};
+}
 
 interface FileTag {
     id?: number;
@@ -34,35 +34,41 @@ async function createFilesTable(db: Knex) {
         return;
     }
 
-    db.schema.createTable(Files, (table: Knex.CreateTableBuilder) => {
-        table.increments("id");
-        table.string("filePath").notNullable();
-        table.string("urlPath").notNullable();
-        table.string("fileType").notNullable();
-        table.string("metadata");
-    }).then(() => {
-        console.log("files table created");
-    });
+    db.schema
+        .createTable(Files, (table: Knex.CreateTableBuilder) => {
+            table.increments("id");
+            table.string("filePath").notNullable();
+            table.string("urlPath").notNullable();
+            table.string("fileType").notNullable();
+            table.jsonb("metadata");
+        })
+        .then(() => {
+            console.log("files table created");
+        });
 }
 
 async function createTagsTable(db: Knex) {
-    db.schema.createTable(Tags, (table: Knex.CreateTableBuilder) => {
-        table.increments("id");
-        table.string("name").notNullable();
-    }).then(() => {
-        console.log("tags table created");
-    })
+    db.schema
+        .createTable(Tags, (table: Knex.CreateTableBuilder) => {
+            table.increments("id");
+            table.string("name").notNullable();
+        })
+        .then(() => {
+            console.log("tags table created");
+        });
 }
 
 async function createFileTagsTable(db: Knex) {
-    db.schema.createTable(FileTags, (table: Knex.CreateTableBuilder) => {
-        table.increments("id");
-        table.integer("fileId").references("files.id").notNullable();
-        table.integer("tagId").references("tags.id").notNullable();
-        table.unique(["fileId", "tagId"]);
-    }).then(() => {
-        console.log("fileTags table created");
-    })
+    db.schema
+        .createTable(FileTags, (table: Knex.CreateTableBuilder) => {
+            table.increments("id");
+            table.integer("fileId").references("files.id").notNullable();
+            table.integer("tagId").references("tags.id").notNullable();
+            table.unique(["fileId", "tagId"]);
+        })
+        .then(() => {
+            console.log("fileTags table created");
+        });
 }
 
 export {
@@ -76,5 +82,4 @@ export {
     FileTags,
     FileTag,
     createFileTagsTable,
-    
 };
