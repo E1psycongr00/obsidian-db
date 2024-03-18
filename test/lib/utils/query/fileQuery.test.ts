@@ -3,6 +3,7 @@ import {
     batchInsertFiles,
     findFiles,
     findTagsAll,
+    findTagsByFileIds,
 } from "../../../../src/lib/utils/query/fileQuery";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import knex, { Knex } from "knex";
@@ -226,6 +227,49 @@ describe("findTagsAll", () => {
         await batchInsertFiles(db, files);
         const resultTags: Tag[] = await findTagsAll(db);
         expect(resultTags.length).toBe(10 + 1);
+    });
+
+    afterAll(async () => {
+        await db.destroy();
+    });
+});
+
+describe("findTagsByFileIds", () => {
+    let db: Knex;
+
+    beforeAll(async () => {
+        db = knex({
+            client: "sqlite3",
+            connection: {
+                filename: ":memory:",
+            },
+            useNullAsDefault: true,
+        });
+        await createFilesTable(db);
+        await createTagsTable(db);
+        await createFileTagsTable(db);
+    });
+
+    it("파일 아이디로 태그를 가져와야 한다.", async () => {
+        await db("fileTags").delete();
+        await db("tags").delete();
+        await db("files").delete();
+        const files = Array.from({ length: 10 }, (_, i) => {
+            return {
+                filePath: `file${i}.md`,
+                urlPath: `file${i}`,
+                fileType: "md",
+                metadata: {
+                    title: `file${i}`,
+                    date: "2021-01-01",
+                    tags: [`tag${i}`, `tag${i + 1}`],
+                },
+            } as File;
+        });
+
+        await batchInsertFiles(db, files);
+        const resultTags: Tag[] = await findTagsByFileIds(db, [1, 2]);
+        expect(resultTags.length).toBe(4);
     });
 
     afterAll(async () => {
