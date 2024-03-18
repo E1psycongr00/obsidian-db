@@ -91,6 +91,10 @@ async function findFiles(db: Knex, condition: SelectFileCondition) {
     });
 }
 
+async function findTagsAll(db: Knex) {
+    return await db("tags").select("*");
+}
+
 
 function extractTagName(file: File) {
     return file.metadata.tags || [];
@@ -101,4 +105,4 @@ function extractTags(files: File[]) {
     return Array.from(tags).map(tag => ({ name: tag } as Tag));
 }
 
-export { SelectFileCondition, batchInsertFiles, findFiles };
+export { SelectFileCondition, batchInsertFiles, findFiles, findTagsAll };
