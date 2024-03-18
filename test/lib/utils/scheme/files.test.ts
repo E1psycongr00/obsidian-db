@@ -23,15 +23,12 @@ describe("createFileTable", () => {
     });
 
     it(`files 테이블은 id, filePath, urlPath, fileType, metadata 컬럼을 가져야 한다`, async () => {
-        const promise: Promise<boolean>[] = [];
-        promise.push(db.schema.hasColumn(Files, "id"));
-        promise.push(db.schema.hasColumn(Files, "filePath"));
-        promise.push(db.schema.hasColumn(Files, "urlPath"));
-        promise.push(db.schema.hasColumn(Files, "fileType"));
-        promise.push(db.schema.hasColumn(Files, "metadata"));
-        const [id, filePath, urlPath, fileType, metadata] = await Promise.all(
-            promise
-        );
+        const id = await db.schema.hasColumn(Files, "id");
+        const filePath = await db.schema.hasColumn(Files, "filePath");
+        const urlPath = await db.schema.hasColumn(Files, "urlPath");
+        const fileType = await db.schema.hasColumn(Files, "fileType");
+        const metadata = await db.schema.hasColumn(Files, "metadata");
+    
         expect([id, filePath, urlPath, fileType, metadata]).toEqual([
             true,
             true,
