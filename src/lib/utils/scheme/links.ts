@@ -9,7 +9,6 @@ export interface Link {
     sourceFileId: number;
     targetFileId: number;
     type: "normal" | "embed";
-    direction: "forward" | "backward";
 }
 
 export async function createLinkTable(db: Knex) {
@@ -18,7 +17,6 @@ export async function createLinkTable(db: Knex) {
         table.integer("sourceFileId").references("files.id");
         table.integer("targetFileId").references("files.id");
         table.enu("type", ["normal", "embed"]);
-        table.string("direction");
         
         table.unique(["sourceFileId", "targetFileId"]);
     }).then(() => {

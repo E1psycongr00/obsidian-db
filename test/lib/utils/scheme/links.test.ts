@@ -40,11 +40,9 @@ describe("createLinkTable", () => {
         promise.push(db.schema.hasColumn(Links, "sourceFileId"));
         promise.push(db.schema.hasColumn(Links, "targetFileId"));
         promise.push(db.schema.hasColumn(Links, "type"));
-        promise.push(db.schema.hasColumn(Links, "direction"));
-        const [id, sourceFileId, targetFileId, type, direction] =
+        const [id, sourceFileId, targetFileId, type] =
             await Promise.all(promise);
-        expect([id, sourceFileId, targetFileId, type, direction]).toEqual([
-            true,
+        expect([id, sourceFileId, targetFileId, type]).toEqual([
             true,
             true,
             true,
@@ -76,7 +74,6 @@ describe("batchInsertLinks", () => {
             sourceFileId: i,
             targetFileId: i + 1,
             type: "normal",
-            direction: "forward",
         })) as Link[];
         await batchInsertLinks(db, links);
         const result = await db(Links).select();
@@ -88,7 +85,6 @@ describe("batchInsertLinks", () => {
             sourceFileId: i,
             targetFileId: i + 1,
             type: "normal",
-            direction: "forward",
         })) as Link[];
         await batchInsertLinks(db, links, 10);
         const result = await db(Links).select();
