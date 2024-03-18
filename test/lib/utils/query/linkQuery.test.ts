@@ -2,6 +2,7 @@ import { batchInsertLinks } from "../../../../src/lib/utils/query/linkQuery";
 import knex, { Knex } from "knex";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
+    createFileTagsTable,
     createFilesTable,
     createTagsTable,
 } from "../../../../src/lib/utils/scheme/files";
@@ -21,18 +22,15 @@ describe("batchInsertLinks", () => {
         });
         await createFilesTable(db);
         await createTagsTable(db);
-        await createFilesTable(db);
+        await createFileTagsTable(db);
         await createLinkTable(db);
     });
 
-    beforeEach(async () => {
+    it("should insert links in batches", async () => {
+        await db("fileTags").delete();
         await db("files").delete();
         await db("tags").delete();
-        await db("fileTags").delete();
         await db("links").delete();
-    });
-
-    it("should insert links in batches", async () => {
         const links = Array.from({ length: 10 }, (_, i) => {
             return {
                 sourceFileId: i,
@@ -51,5 +49,5 @@ describe("batchInsertLinks", () => {
 
     afterAll(async () => {
         await db.destroy();
-    })
+    });
 });
