@@ -4,9 +4,7 @@ import {
     File,
     Tags,
     Tag,
-    FileTag,
     FileTags,
-    Metadata,
 } from "../scheme/files";
 
 const CHUNK_SIZE = 1000;
@@ -83,23 +81,27 @@ async function findFiles(db: Knex, condition: SelectFileCondition) {
     if (condition.limit) {
         query.limit(condition.limit);
     }
-    return (await query).map(file => {
-        return {
-            ...file,
-            metadata: JSON.parse(file.metadata),
-        };
-    });
+    return convertFilesWithMetadata(await query);
+}
+
+async function findFilesByTagNames(db: Knex, tagNames: string[]) {
+    const result = await db("files")
+        .select("files.*")
+        .join("fileTags", "files.id", "fileTags.fileId")
+        .join("tags", "fileTags.tagId", "tags.id")
+        .whereIn("tags.name", tagNames);
+    return convertFilesWithMetadata(result);
 }
 
 async function findTagsAll(db: Knex) {
-    return await db("tags").select("*");
+    return await db("tags").select("*") as Tag[];
 }
 
 async function findTagsByFileIds(db: Knex, fileIds: number[]) {
-    return await db("fileTags")
+    return (await db("fileTags")
         .select("tags.*")
         .join("tags", "fileTags.tagId", "tags.id")
-        .whereIn("fileTags.fileId", fileIds) as Tag[];
+        .whereIn("fileTags.fileId", fileIds)) as Tag[];
 }
 
 function extractTagName(file: File) {
@@ -111,10 +113,18 @@ function extractTags(files: File[]) {
     return Array.from(tags).map(tag => ({ name: tag } as Tag));
 }
 
+function convertFilesWithMetadata(files: any[]) {
+    return files.map(file => {
+        const metadata = JSON.parse(file.metadata);
+        return { ...file, metadata };
+    }) as File[];
+}
+
 export {
     SelectFileCondition,
     batchInsertFiles,
     findFiles,
     findTagsAll,
     findTagsByFileIds,
+    findFilesByTagNames,
 };
