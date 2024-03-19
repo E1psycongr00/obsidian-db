@@ -1,14 +1,10 @@
 import { Knex } from "knex";
 import { Link, Links } from "../scheme/links";
+import { TitleLink } from "../parser";
 
 const CHUNK_SIZE = 1000;
 
-
-function batchInsertLinks(
-    db: Knex,
-    links: Link[],
-    chunkSize = CHUNK_SIZE
-) {
+function batchInsertLinks(db: Knex, links: Link[], chunkSize = CHUNK_SIZE) {
     const linkSize = links.length;
     const chunk = Math.ceil(linkSize / chunkSize);
     db.transaction(async function (trx) {
@@ -24,4 +20,19 @@ function batchInsertLinks(
     });
 }
 
-export {batchInsertLinks}
+async function findLinksAll(db: Knex) {
+    return (await db(Links)
+        .select(
+            "source.name as sourceTitle",
+            "target.name as targetTitle",
+            "links.type as type"
+        )
+        .join("files as source", "source.id", "links.sourceFileId")
+        .join(
+            "files as target",
+            "target.id",
+            "links.targetFileId"
+        )) as TitleLink[];
+}
+
+export { batchInsertLinks, findLinksAll };
