@@ -20,7 +20,7 @@ interface BuildAstOptions {
 interface TitleLink {
     sourceTitle: string;
     targetTitle: string;
-    linkType?: string;
+    linkType?: "normal" | "embed";
 }
 
 interface LinkExtractor {

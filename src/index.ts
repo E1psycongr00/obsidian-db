@@ -1,14 +1,5 @@
-export {
-    findLinksAll,
-    findLinksForward,
-    findLinksBackward,
-    batchInsertLinks,
-} from "./lib/utils/query/linkQuery";
+import { ObsidianDbBuilder, DbConfig } from "./lib/utils/obsidianDB";
+import ObsidianDb from "./lib/utils/obsidianDB";
 
-export {
-    findFiles,
-    findTagsAll,
-    findTagsByFileIds,
-    findFilesByTagNames,
-    batchInsertFiles,
-} from "./lib/utils/query/fileQuery";
+export default ObsidianDb;
+export { ObsidianDbBuilder, DbConfig };
