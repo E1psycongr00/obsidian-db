@@ -1,7 +1,14 @@
-import {hello} from "./lib/hello";
-function add(a: number, b: number) {
-    hello();
-    return a + b;
-}
+export {
+    findLinksAll,
+    findLinksForward,
+    findLinksBackward,
+    batchInsertLinks,
+} from "./lib/utils/query/linkQuery";
 
-export {add};
+export {
+    findFiles,
+    findTagsAll,
+    findTagsByFileIds,
+    findFilesByTagNames,
+    batchInsertFiles,
+} from "./lib/utils/query/fileQuery";
