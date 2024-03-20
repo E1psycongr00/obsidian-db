@@ -21,18 +21,65 @@ function batchInsertLinks(db: Knex, links: Link[], chunkSize = CHUNK_SIZE) {
 }
 
 async function findLinksAll(db: Knex) {
-    return (await db(Links)
+    const result = await db(Links)
         .select(
-            "source.name as sourceTitle",
-            "target.name as targetTitle",
+            "source.metadata as sourceMetadata",
+            "target.metadata as targetMetadata",
             "links.type as type"
         )
         .join("files as source", "source.id", "links.sourceFileId")
-        .join(
-            "files as target",
-            "target.id",
-            "links.targetFileId"
-        )) as TitleLink[];
+        .join("files as target", "target.id", "links.targetFileId");
+    return result.map(r => {
+        r.sourceMetadata = JSON.parse(r.sourceMetadata);
+        r.targetMetadata = JSON.parse(r.targetMetadata);
+        return {
+            sourceTitle: r.sourceMetadata.title,
+            targetTitle: r.targetMetadata.title,
+            type: r.type,
+        } as TitleLink;
+    });
 }
 
-export { batchInsertLinks, findLinksAll };
+async function findLinksForward(db: Knex, fileId: number) {
+    const result = await db(Links)
+        .select(
+            "source.metadata as sourceMetadata",
+            "target.metadata as targetMetadata",
+            "links.type as type"
+        )
+        .join("files as source", "source.id", "links.sourceFileId")
+        .join("files as target", "target.id", "links.targetFileId")
+        .where("source.id", fileId);
+    return result.map(r => {
+        r.sourceMetadata = JSON.parse(r.sourceMetadata);
+        r.targetMetadata = JSON.parse(r.targetMetadata);
+        return {
+            sourceTitle: r.sourceMetadata.title,
+            targetTitle: r.targetMetadata.title,
+            type: r.type,
+        } as TitleLink;
+    });
+}
+
+async function findLinksBackward(db: Knex, fileId: number) {
+    const result = await db(Links)
+        .select(
+            "source.metadata as sourceMetadata",
+            "target.metadata as targetMetadata",
+            "links.type as type"
+        )
+        .join("files as source", "source.id", "links.sourceFileId")
+        .join("files as target", "target.id", "links.targetFileId")
+        .where("target.id", fileId);
+    return result.map(r => {
+        r.sourceMetadata = JSON.parse(r.sourceMetadata);
+        r.targetMetadata = JSON.parse(r.targetMetadata);
+        return {
+            sourceTitle: r.sourceMetadata.title,
+            targetTitle: r.targetMetadata.title,
+            type: r.type,
+        } as TitleLink;
+    });
+}
+
+export { batchInsertLinks, findLinksAll, findLinksForward, findLinksBackward };
