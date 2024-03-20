@@ -58,12 +58,13 @@ interface SelectFileCondition {
         urlPath?: string;
         fileType?: string;
         title?: string;
+        tagNames?: string[];
     };
     limit?: number;
 }
 
 async function findFiles(db: Knex, condition: SelectFileCondition) {
-    const query = db("files").select("*");
+    const query = db("files").select("files.*");
     if (condition.where) {
         Object.entries(condition.where).forEach(([key, value]) => {
             switch (key) {
@@ -71,26 +72,23 @@ async function findFiles(db: Knex, condition: SelectFileCondition) {
                     query.andWhereRaw("??->>? = ?", ["metadata", key, value]);
                     break;
                 }
+                case "tagNames": break;
                 default: {
                     query.andWhere(key, value);
                 }
             }
         });
+        if (condition.where.tagNames) {
+            query.join("fileTags", "files.id", "fileTags.fileId")
+            .join("tags", "fileTags.tagId", "tags.id")
+            .whereIn("tags.name", condition.where.tagNames);
+        }
     }
 
     if (condition.limit) {
         query.limit(condition.limit);
     }
     return convertFilesWithMetadata(await query);
-}
-
-async function findFilesByTagNames(db: Knex, tagNames: string[]) {
-    const result = await db("files")
-        .select("files.*")
-        .join("fileTags", "files.id", "fileTags.fileId")
-        .join("tags", "fileTags.tagId", "tags.id")
-        .whereIn("tags.name", tagNames);
-    return convertFilesWithMetadata(result);
 }
 
 async function findTagsAll(db: Knex) {
@@ -126,5 +124,4 @@ export {
     findFiles,
     findTagsAll,
     findTagsByFileIds,
-    findFilesByTagNames,
 };
