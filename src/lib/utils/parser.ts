@@ -3,7 +3,7 @@ import markdownParse from "remark-parse";
 import { remarkWikiLink } from "@portaljs/remark-wiki-link";
 import gfm, { Root } from "remark-gfm";
 import { Plugin } from "unified";
-import { Metadata } from "./scheme/files";
+import { Metadata } from "./scheme/files.js";
 import * as matter from "gray-matter";
 import { visit } from "unist-util-visit";
 

@@ -5,7 +5,7 @@ import {
     Tags,
     Tag,
     FileTags,
-} from "../scheme/files";
+} from "../scheme/files.js";
 
 const CHUNK_SIZE = 1000;
 
