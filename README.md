@@ -12,3 +12,5 @@
     - markdownDB 인스턴스 초기화 및 쿼리 메서드 추가
 - 0.2.1:
     - module import 문제 수정 
+- 0.2.3:
+    - gray matter import 오류 수정
