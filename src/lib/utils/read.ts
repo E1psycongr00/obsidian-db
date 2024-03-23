@@ -1,11 +1,11 @@
 import * as fs from "fs";
-import { findFilesAll } from "./filePath";
-import { parseFile } from "./parser";
-import { File } from "./scheme/files";
-import { batchInsertFiles } from "./query/fileQuery";
-import { batchInsertLinks } from "./query/linkQuery";
+import { findFilesAll } from "./filePath.js";
+import { parseFile } from "./parser.js";
+import { File } from "./scheme/files.js";
+import { batchInsertFiles } from "./query/fileQuery.js";
+import { batchInsertLinks } from "./query/linkQuery.js";
 import { Knex } from "knex";
-import { Link } from "./scheme/links";
+import { Link } from "./scheme/links.js";
 
 
 async function batchInsertDirectories(db:Knex, dir: string) {

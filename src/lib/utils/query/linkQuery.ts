@@ -1,6 +1,6 @@
 import { Knex } from "knex";
-import { Link, Links } from "../scheme/links";
-import { TitleLink } from "../parser";
+import { Link, Links } from "../scheme/links.js";
+import { TitleLink } from "../parser.js";
 
 const CHUNK_SIZE = 1000;
 

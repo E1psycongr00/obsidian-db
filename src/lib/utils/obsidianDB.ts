@@ -1,14 +1,14 @@
-import { Knex, knex } from "knex";
-import { BuildAstOptions, LinkExtractor, ParseOptions } from "./parser";
+import knex, {Knex} from "knex";
+import { BuildAstOptions, LinkExtractor, ParseOptions } from "./parser.js";
 import {
     createFileTagsTable,
     createFilesTable,
     createTagsTable,
-} from "./scheme/files";
-import { createLinkTable } from "./scheme/links";
-import { batchInsertDirectories } from "./read";
-import { SelectFileCondition, findFiles } from "./query/fileQuery";
-import { findLinksAll, findLinksBackward, findLinksForward } from "./query/linkQuery";
+} from "./scheme/files.js";
+import { createLinkTable } from "./scheme/links.js";
+import { batchInsertDirectories } from "./read.js";
+import { SelectFileCondition, findFiles } from "./query/fileQuery.js";
+import { findLinksAll, findLinksBackward, findLinksForward } from "./query/linkQuery.js";
 
 interface DbConfig {
     knexConfig: Knex.Config;

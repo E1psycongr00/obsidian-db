@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import {buildAst} from "../../../src/lib/utils/parser";
-import {visit} from "unist-util-visit";
+import { buildAst, parseFile } from "../../../src/lib/utils/parser";
+import { visit } from "unist-util-visit";
 
 describe("buildAst", () => {
     it("should parse markdown content", () => {
@@ -21,10 +21,27 @@ describe("buildAst", () => {
 
     it("shold parse markdown content with wiki links and permalinks", () => {
         const result = buildAst("# Hello World [[link]]", {
-            permalinks: ["content/a/link"]
+            permalinks: ["content/a/link"],
         }) as any;
         visit(result, "wikiLink", (node, index, parent) => {
             expect(node.data.hProperties.href).toBe("content/a/link");
         });
-    })
+    });
+});
+
+describe("parseFile", () => {
+    it("should parse file content", () => {
+        const source = `---
+title: Hello World
+date: 2021-01-01
+tags: []
+---
+
+hello world`;
+        const { ast, metaData, body, links } = parseFile(source);
+        expect(metaData.title).toBe("Hello World");
+        expect(metaData.date).toBeTruthy();
+        expect(metaData.tags).toEqual([]);
+        expect(body).toBe("\nhello world");
+    });
 });

@@ -3,8 +3,8 @@ import markdownParse from "remark-parse";
 import { remarkWikiLink } from "@portaljs/remark-wiki-link";
 import gfm, { Root } from "remark-gfm";
 import { Plugin } from "unified";
-import { Metadata } from "./scheme/files";
-import * as matter from "gray-matter";
+import { Metadata } from "./scheme/files.js";
+import matter from "gray-matter";
 import { visit } from "unist-util-visit";
 
 interface ParseOptions {
@@ -33,7 +33,7 @@ function parseFile(source: string, options: ParseOptions = {}) {
     const ast = buildAst(body, options.buildAstOptions || {});
     const metaData = extractMetadata({ data: meta, content: body });
     const links = extractLinks(metaData, ast, options.linkExtractors || []);
-    return { ast, metaData, links };
+    return { ast, metaData, body, links };
 }
 
 function buildAst(content: string, options: BuildAstOptions = {}) {
