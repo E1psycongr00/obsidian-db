@@ -60,7 +60,7 @@ function extractMetadata({
     data: { [key: string]: any };
     content: string;
 }) {
-    const tags = [];
+    const tags = metadata?.tags || [];
     const hashtagRegex = /#[가-힣A-Za-z0-9_]+/g;
     let match;
     while ((match = hashtagRegex.exec(content)) !== null) {
@@ -69,7 +69,7 @@ function extractMetadata({
 
     return {
         title: metadata.title,
-        tags: metadata.tags.concat(tags),
+        tags: tags,
         date: metadata.date,
     } as Metadata;
 }
