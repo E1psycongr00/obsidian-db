@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 
-function findFilesAll(rootDir: string): string[] {
+function findFilePathsAll(rootDir: string): string[] {
     const files = fs.readdirSync(rootDir);
     const result: string[] = [];
     for (const file of files) {
         const fullPath = path.join(rootDir, file);
         if (fs.statSync(fullPath).isDirectory()) {
-            result.push(...findFilesAll(fullPath));
+            result.push(...findFilePathsAll(fullPath));
         } else {
             result.push(fullPath);
         }
@@ -19,4 +19,4 @@ function encodeFilePath(filePath: string) {
     return filePath.replace(/\\/g, "/");
 }
 
-export { findFilesAll, encodeFilePath };
+export { findFilePathsAll, encodeFilePath };

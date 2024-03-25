@@ -118,22 +118,22 @@ describe("findLinks Forward || Backward", () => {
         await createFileTagsTable(db);
         await createLinkTable(db);
 
-        const files = Array.from({ length: 10 }, (_, i) => {
+        const files = Array.from({ length: 4 }, (_, i) => {
             return {
-                filePath: `file${i}.md`,
-                urlPath: `file${i}`,
+                filePath: `file${i + 1}.md`,
+                urlPath: `file${i + 1}`,
                 fileType: "md",
                 metadata: {
-                    title: `file${i}`,
+                    title: `file${i + 1}`,
                     date: "2021-01-01",
                     tags: [`tag${i}`, `tag${i + 1}`],
                 },
             } as File;
         });
-        const links = Array.from({ length: 10 }, (_, i) => {
+        const links = Array.from({ length: 3 }, (_, i) => {
             return {
-                sourceFileId: i + 1,
-                targetFileId: i + 2,
+                sourceFileId: 1,
+                targetFileId: i + 1,
                 type: "normal",
             } as Link;
         });
@@ -143,15 +143,14 @@ describe("findLinks Forward || Backward", () => {
 
     it("특정 파일에 대한 forward 링크를 가져올 수 있어야 한다", async () => {
         const result = await findLinksForward(db, 1);
-        expect(result.length).toBe(1);
-        expect(result[0].sourceTitle).toBe("file1");
+        expect(result.length).toBe(3);
+        expect(result[0].source).toBe("file1");
     });
 
     it("특정 파일에 대한 backward 링크를 가져올 수 있어야 한다", async () => {
         const result = await findLinksBackward(db, 2);
         expect(result.length).toBe(1);
-        expect(result[0].targetTitle).toBe("file1");
+        expect(result[0].target).toBe("file2");
+        expect(result[0].source).toBe("file1");
     });
-
-
 });

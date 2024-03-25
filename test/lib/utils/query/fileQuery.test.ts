@@ -9,10 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import knex, { Knex } from "knex";
 import {
     File,
-    FileTags,
-    Files,
     Tag,
-    Tags,
     createFileTagsTable,
     createFilesTable,
     createTagsTable,
@@ -210,7 +207,6 @@ describe("selectFiles", () => {
 
         await batchInsertFiles(db, files);
         const resultFiles: File[] = await findFiles(db, {where: { tagNames: ["tag1"]} });
-        console.log(resultFiles);
         expect(resultFiles.length).toBe(2);
         expect(resultFiles[0].metadata.tags).toContain("tag1");
         expect(resultFiles[1].metadata.tags).toContain("tag1");

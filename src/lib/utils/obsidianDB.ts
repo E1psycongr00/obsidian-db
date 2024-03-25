@@ -1,5 +1,9 @@
-import knex, {Knex} from "knex";
-import { BuildAstOptions, LinkExtractor, ParseOptions } from "./parser.js";
+import knex, { Knex } from "knex";
+import Parser, {
+    BuildAstOptions,
+    LinkExtractor,
+    ParseOptions,
+} from "./parser.js";
 import {
     createFileTagsTable,
     createFilesTable,
@@ -8,7 +12,11 @@ import {
 import { createLinkTable } from "./scheme/links.js";
 import { batchInsertDirectories } from "./read.js";
 import { SelectFileCondition, findFiles } from "./query/fileQuery.js";
-import { findLinksAll, findLinksBackward, findLinksForward } from "./query/linkQuery.js";
+import {
+    findLinksAll,
+    findLinksBackward,
+    findLinksForward,
+} from "./query/linkQuery.js";
 
 interface DbConfig {
     knexConfig: Knex.Config;
@@ -17,13 +25,16 @@ interface DbConfig {
 }
 
 class ObsidianDb {
-    knexDb: Knex;
-    parseOptions: ParseOptions;
-    parseDirectory: string;
+    private knexDb: Knex;
+    private parser: Parser;
+    private parseDirectory: string;
 
     constructor({ knexConfig, parseOptions, parseDirectory }: DbConfig) {
         this.knexDb = knex(knexConfig);
-        this.parseOptions = parseOptions;
+        this.parser = new Parser(
+            parseOptions.buildAstOptions || {},
+            parseOptions.linkExtractors || []
+        );
         this.parseDirectory = parseDirectory;
     }
 
@@ -32,7 +43,7 @@ class ObsidianDb {
         await createLinkTable(this.knexDb);
         await createTagsTable(this.knexDb);
         await createFileTagsTable(this.knexDb);
-        await batchInsertDirectories(this.knexDb, this.parseDirectory);
+        await batchInsertDirectories(this.knexDb, this.parseDirectory, this.parser);
     }
 
     public async findFiles(condition: SelectFileCondition) {

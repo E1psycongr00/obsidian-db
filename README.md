@@ -14,3 +14,8 @@
     - module import 문제 수정 
 - 0.2.3:
     - gray matter import 오류 수정
+- 0.2.4:
+    - 기존 구조 개선(obsidianDB, read, parser)
+    - link 오류 수정
+- 0.2.5:
+    - 링크 연결 오류시 오류 메시지 출력
