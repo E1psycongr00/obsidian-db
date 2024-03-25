@@ -30,46 +30,36 @@ interface FileTag {
 }
 
 async function createFilesTable(db: Knex) {
-    if (await db.schema.hasTable(Files)) {
-        return;
-    }
-
-    db.schema
-        .createTable(Files, (table: Knex.CreateTableBuilder) => {
-            table.increments("id");
-            table.string("filePath").notNullable();
-            table.string("urlPath").notNullable();
-            table.string("fileType").notNullable();
-            table.jsonb("metadata");
-        })
-        .then(() => {
-            console.log("files table created");
-        });
+    await db.schema.dropTableIfExists(Files);
+    await db.schema.createTable(Files, (table: Knex.CreateTableBuilder) => {
+        table.increments("id");
+        table.string("filePath").notNullable();
+        table.string("urlPath").notNullable();
+        table.string("fileType").notNullable();
+        table.jsonb("metadata");
+    });
+    console.log("files table created");
 }
 
 async function createTagsTable(db: Knex) {
-    db.schema
-        .createTable(Tags, (table: Knex.CreateTableBuilder) => {
-            table.increments("id");
-            table.string("name").notNullable();
-            table.unique("name");
-        })
-        .then(() => {
-            console.log("tags table created");
-        });
+    await db.schema.dropTableIfExists(Tags);
+    await db.schema.createTable(Tags, (table: Knex.CreateTableBuilder) => {
+        table.increments("id");
+        table.string("name").notNullable();
+        table.unique("name");
+    });
+    console.log("tags table created");
 }
 
 async function createFileTagsTable(db: Knex) {
-    db.schema
-        .createTable(FileTags, (table: Knex.CreateTableBuilder) => {
-            table.increments("id");
-            table.integer("fileId").references("files.id").notNullable();
-            table.integer("tagId").references("tags.id").notNullable();
-            table.unique(["fileId", "tagId"]);
-        })
-        .then(() => {
-            console.log("fileTags table created");
-        });
+    await db.schema.dropTableIfExists(FileTags);
+    await db.schema.createTable(FileTags, (table: Knex.CreateTableBuilder) => {
+        table.increments("id");
+        table.integer("fileId").references("files.id").notNullable();
+        table.integer("tagId").references("tags.id").notNullable();
+        table.unique(["fileId", "tagId"]);
+    });
+    console.log("fileTags table created");
 }
 
 export {
