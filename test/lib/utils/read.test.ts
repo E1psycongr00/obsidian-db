@@ -34,7 +34,10 @@ describe("batchInsertDirectories", () => {
 
     it("should insert directories and files into the database", async () => {
         const dir = path.join(process.cwd(), "test", "__mock__", "contents");
-        const parser = new Parser();
+        const permalinks = findFilePathsAll(dir).map(
+            filePath => splitFilePath(filePath).urlPath
+        );
+        const parser = new Parser({ permalinks });
         await batchInsertDirectories(db, dir, parser);
 
         const fileCount = await db.count().from("files");
