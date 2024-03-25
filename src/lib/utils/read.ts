@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { findFilesAll } from "./filePath.js";
+import { findFilePathsAll } from "./filePath.js";
 import { ParseOptions, parseFile } from "./parser.js";
 import { File } from "./scheme/files.js";
 import { batchInsertFiles } from "./query/fileQuery.js";
@@ -12,7 +12,7 @@ async function batchInsertDirectories(
     dir: string,
     parseOptions: ParseOptions = {}
 ) {
-    const filePaths = findFilesAll(dir);
+    const filePaths = findFilePathsAll(dir);
     if (!parseOptions.buildAstOptions) {
         const permalinks = filePaths.map(filePath => {
             const { urlPath } = splitFilePath(filePath);
