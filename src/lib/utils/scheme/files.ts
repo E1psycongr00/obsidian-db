@@ -52,6 +52,7 @@ async function createTagsTable(db: Knex) {
         .createTable(Tags, (table: Knex.CreateTableBuilder) => {
             table.increments("id");
             table.string("name").notNullable();
+            table.unique("name");
         })
         .then(() => {
             console.log("tags table created");
