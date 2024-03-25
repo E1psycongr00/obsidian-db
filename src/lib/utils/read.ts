@@ -31,7 +31,7 @@ function convertIdLinks(fileData: any[], urlLinks: UrlLink[]) {
         try {
             links.push(convertLink(fileData, urlLink));
         } catch (error) {
-            console.error(error + "so disconnect link");   
+            console.error(error + " so disconnect link");   
         }
     }
     return links;
