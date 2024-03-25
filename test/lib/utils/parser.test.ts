@@ -1,47 +1,70 @@
-import { describe, it, expect } from "vitest";
-import { extractAst, parseFile } from "../../../src/lib/utils/parser";
+import { describe, it, expect, beforeAll } from "vitest";
+import Parser from "../../../src/lib/utils/parser";
 import { visit } from "unist-util-visit";
+import path from "path";
 
-describe("extractAst", () => {
-    it("should parse markdown content", () => {
-        const result = extractAst("# Hello World") as any;
-        visit(result, "heading", (node, index, parent) => {
-            expect(node.children[0].value).toBe("Hello World");
+describe("Parser", () => {
+    describe("extractAst", () => {
+        it("should parse markdown content", () => {
+            const parser = new Parser();
+            const result = parser.parseAst("# Hello World") as any;
+            visit(result, "heading", (node, index, parent) => {
+                expect(node.children[0].value).toBe("Hello World");
+            });
+        });
+
+        it("should parse markdown content with wiki links", () => {
+            const parser = new Parser();
+            const result = parser.parseAst("# Hello World [[link]]") as any; // Add type assertion
+            visit(result, "wikiLink", (node, index, parent) => {
+                expect(node.data.hName).toBe("a");
+                expect(node.data.permalink).toBe("link");
+            });
+        });
+
+        it("shold parse markdown content with wiki links and permalinks", () => {
+            const parser = new Parser({ permalinks: ["content/a/link"] });
+            const result = parser.parseAst("# Hello World [[link]]") as any;
+            visit(result, "wikiLink", (node, index, parent) => {
+                expect(node.data.hProperties.href).toBe("content/a/link");
+            });
         });
     });
 
-    it("should parse markdown content with wiki links", () => {
-        const result = extractAst("# Hello World [[link]]") as any; // Add type assertion
-        // console.log(JSON.stringify(result, null, 2));
-        visit(result, "wikiLink", (node, index, parent) => {
-            expect(node.data.hName).toBe("a");
-            expect(node.data.permalink).toBe("link");
+    describe("extractMetadata", () => {
+        it("should extract metadata", () => {
+            const parser = new Parser();
+            const source =
+                "---\ntitle: Hello World\ndate: 2021-01-01\ntags: [tag1, tag2]\n--- #tag3";
+            const result = parser.parseMetadata(source);
+            expect(result.tags).contain("tag1").contain("tag2").contain("tag3");
         });
     });
 
-    it("shold parse markdown content with wiki links and permalinks", () => {
-        const result = extractAst("# Hello World [[link]]", {
-            permalinks: ["content/a/link"],
-        }) as any;
-        visit(result, "wikiLink", (node, index, parent) => {
-            expect(node.data.hProperties.href).toBe("content/a/link");
+    describe("extractLinks", () => {
+        it("should extract links", () => {
+            const parser = new Parser();
+            const source = "# Hello World [[link]]";
+            const ast = parser.parseAst(source);
+            const links = parser.parseLinks(ast, "source");
+            expect(links[0].source).toBe("source");
+            expect(links[0].target).toBe("link");
         });
     });
-});
 
-describe("parseFile", () => {
-    it("should parse file content", () => {
-        const source = `---
-title: Hello World
-date: 2021-01-01
-tags: []
----
-
-hello world`;
-        const { ast, metaData, body, links } = parseFile(source);
-        expect(metaData.title).toBe("Hello World");
-        expect(metaData.date).toBeTruthy();
-        expect(metaData.tags).toEqual([]);
-        expect(body).toBe("\nhello world");
+    describe("parseFile", () => {
+        it("should parse file content", () => {
+            const parser = new Parser();
+            const filePath = path.join(
+                process.cwd(),
+                "test",
+                "__mock__",
+                "contents",
+                "A.md"
+            );
+            const {file, links} = parser.parseFile(filePath);
+            expect(file).toBeTruthy();
+            expect(links).toBeTruthy();
+        });
     });
 });

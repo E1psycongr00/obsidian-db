@@ -3,9 +3,12 @@ import markdownParse from "remark-parse";
 import { remarkWikiLink } from "@portaljs/remark-wiki-link";
 import gfm, { Root } from "remark-gfm";
 import { Plugin } from "unified";
-import { Metadata } from "./scheme/files.js";
 import matter from "gray-matter";
+import * as fs from "fs";
 import { visit } from "unist-util-visit";
+import { Metadata } from "./scheme/files.js";
+import { File } from "./scheme/files.js";
+
 
 interface ParseOptions {
     buildAstOptions?: BuildAstOptions;
@@ -24,89 +27,109 @@ interface UrlLink {
 }
 
 interface LinkExtractor {
-    extract: (ast: Root) => any[];
+    extract: (ast: Root) => string[];
 }
 
-function parseFile(source: string, options: ParseOptions = {}) {
-    const { data: meta, content: body } = matter(source);
+class Parser {
+    private readonly processor: any;
+    private readonly linkExtractors: LinkExtractor[];
 
-    const ast = extractAst(body, options.buildAstOptions || {});
-    const metaData = extractMetadata({ data: meta, content: body });
-    const links = extractLinks(metaData, ast, options.linkExtractors || []);
-    return { ast, metaData, body, links };
-}
-
-function extractAst(content: string, options: BuildAstOptions = {}) {
-    const processor = unified()
-        .use(markdownParse)
-        .use([
-            gfm,
-            [
-                remarkWikiLink,
-                {
-                    pathFormat: "obsidian-short",
-                    permalinks: options?.permalinks,
-                },
-            ],
-            ...(options?.remarkPlugins || []),
-        ]);
-    return processor.parse(content);
-}
-
-function extractMetadata({
-    data: metadata,
-    content,
-}: {
-    data: { [key: string]: any };
-    content: string;
-}) {
-    const tags = metadata?.tags || [];
-    const hashtagRegex = /#[가-힣A-Za-z0-9_]+/g;
-    let match;
-    while ((match = hashtagRegex.exec(content)) !== null) {
-        tags.push(match[0]);
+    constructor(
+        buildAstOptions: BuildAstOptions = {},
+        linkExtractors: LinkExtractor[] = []
+    ) {
+        this.processor = this.initProcessor(buildAstOptions);
+        this.linkExtractors = this.initLinkExtractors(linkExtractors);
     }
 
-    return {
-        title: metadata.title,
-        tags: tags,
-        date: metadata.date,
-    } as Metadata;
-}
-
-function extractLinks(
-    meta: Metadata,
-    ast: Root,
-    linkExtractors: LinkExtractor[]
-) {
-    const defaultExtractors = [
-        {
-            extract(ast: Root) {
-                const links: UrlLink[] = [];
-                visit(ast, "wikiLink", (node: any) => {
-                    links.push({
-                        source: meta.title ?? "",
-                        target: node.data.permalink,
-                    });
-                });
-            },
-        } as LinkExtractor,
-    ];
-    const links: UrlLink[] = [];
-    linkExtractors = linkExtractors.concat(defaultExtractors);
-    for (const linkExtractor of linkExtractors) {
-        links.concat(linkExtractor.extract(ast));
+    public parseFile(filePath: string) {
+        const source = fs.readFileSync(filePath, "utf-8");
+        const { content } = matter(source);
+        const ast = this.parseAst(content);
+        const metadata = this.parseMetadata(source);
+        const links = this.parseLinks(ast, filePath);
+        const { urlPath, fileType } = this.splitFilePath(filePath);
+        const file = {
+            filePath: filePath,
+            urlPath: urlPath,
+            fileType: fileType,
+            metadata: metadata,
+        } as File;
+        return { file, links };
     }
-    return links;
+
+    public parseAst(content: string): Root {
+        return this.processor.parse(content);
+    }
+
+    public parseMetadata(source: string): Metadata {
+        const { data: metadata, content } = matter(source);
+        const tags = metadata?.tags || [];
+        const hashtagRegex = /#[가-힣A-Za-z0-9_]+/g;
+        let match;
+        while ((match = hashtagRegex.exec(content)) !== null) {
+            tags.push(match[0].slice(1));
+        }
+        return {
+            title: metadata.title,
+            tags: tags,
+            date: metadata.date,
+        };
+    }
+
+    public parseLinks(ast: Root, sourceUrlPath: string): UrlLink[] {
+        const targetLinks: string[] = [];
+        for (const linkExtractor of this.linkExtractors) {
+            const target = linkExtractor.extract(ast);
+            targetLinks.push(...target);
+        }
+        return targetLinks.map(targetPath => {
+            return {
+                source: sourceUrlPath,
+                target: targetPath,
+            } as UrlLink;
+        });
+    }
+
+    private initProcessor(buildAstOptions: BuildAstOptions) {
+        return unified()
+            .use(markdownParse)
+            .use([
+                gfm,
+                [
+                    remarkWikiLink,
+                    {
+                        pathFormat: "obsidian-short",
+                        permalinks: buildAstOptions?.permalinks,
+                    },
+                ],
+                ...(buildAstOptions?.remarkPlugins || []),
+            ]);
+    }
+
+    private initLinkExtractors(linkExtractors: LinkExtractor[]) {
+        const wikiLinkExtractor = function (ast: Root) {
+            const targetLinks: string[] = [];
+            visit(ast, "wikiLink", (node: any) => {
+                targetLinks.push(node.data.permalink);
+            });
+            return targetLinks;
+        };
+        return [...linkExtractors, { extract: wikiLinkExtractor }];
+    }
+
+    private splitFilePath(filePath: string) {
+        const split = filePath.split(".");
+        const fileType = split[split.length - 1];
+        const urlPath = split.slice(0, split.length - 1).join(".");
+        return { urlPath, fileType };
+    }
 }
 
+export default Parser;
 export {
     ParseOptions,
     BuildAstOptions,
     UrlLink,
     LinkExtractor,
-    extractAst,
-    extractMetadata,
-    extractLinks,
-    parseFile,
 };
