@@ -30,13 +30,13 @@ interface LinkExtractor {
 function parseFile(source: string, options: ParseOptions = {}) {
     const { data: meta, content: body } = matter(source);
 
-    const ast = buildAst(body, options.buildAstOptions || {});
+    const ast = extractAst(body, options.buildAstOptions || {});
     const metaData = extractMetadata({ data: meta, content: body });
     const links = extractLinks(metaData, ast, options.linkExtractors || []);
     return { ast, metaData, body, links };
 }
 
-function buildAst(content: string, options: BuildAstOptions = {}) {
+function extractAst(content: string, options: BuildAstOptions = {}) {
     const processor = unified()
         .use(markdownParse)
         .use([
@@ -105,7 +105,7 @@ export {
     BuildAstOptions,
     UrlLink,
     LinkExtractor,
-    buildAst,
+    extractAst,
     extractMetadata,
     extractLinks,
     parseFile,
