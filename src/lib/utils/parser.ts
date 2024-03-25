@@ -47,8 +47,8 @@ class Parser {
         const { content } = matter(source);
         const ast = this.parseAst(content);
         const metadata = this.parseMetadata(source);
-        const links = this.parseLinks(ast, filePath);
         const { urlPath, fileType } = this.splitFilePath(filePath);
+        const links = this.parseLinks(ast, urlPath);
         const file = {
             filePath: filePath,
             urlPath: urlPath,
