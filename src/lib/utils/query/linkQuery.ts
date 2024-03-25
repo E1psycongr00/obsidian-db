@@ -1,6 +1,6 @@
 import { Knex } from "knex";
 import { Link, Links } from "../scheme/links.js";
-import { TitleLink } from "../parser.js";
+import { UrlLink } from "../parser.js";
 
 const CHUNK_SIZE = 1000;
 
@@ -33,10 +33,10 @@ async function findLinksAll(db: Knex) {
         r.sourceMetadata = JSON.parse(r.sourceMetadata);
         r.targetMetadata = JSON.parse(r.targetMetadata);
         return {
-            sourceTitle: r.sourceMetadata.title,
-            targetTitle: r.targetMetadata.title,
+            source: r.sourceMetadata.title,
+            target: r.targetMetadata.title,
             type: r.type,
-        } as TitleLink;
+        } as UrlLink;
     });
 }
 
@@ -54,10 +54,10 @@ async function findLinksForward(db: Knex, fileId: number) {
         r.sourceMetadata = JSON.parse(r.sourceMetadata);
         r.targetMetadata = JSON.parse(r.targetMetadata);
         return {
-            sourceTitle: r.sourceMetadata.title,
-            targetTitle: r.targetMetadata.title,
+            source: r.sourceMetadata.title,
+            target: r.targetMetadata.title,
             type: r.type,
-        } as TitleLink;
+        } as UrlLink;
     });
 }
 
@@ -75,10 +75,10 @@ async function findLinksBackward(db: Knex, fileId: number) {
         r.sourceMetadata = JSON.parse(r.sourceMetadata);
         r.targetMetadata = JSON.parse(r.targetMetadata);
         return {
-            sourceTitle: r.sourceMetadata.title,
-            targetTitle: r.targetMetadata.title,
+            source: r.sourceMetadata.title,
+            target: r.targetMetadata.title,
             type: r.type,
-        } as TitleLink;
+        } as UrlLink;
     });
 }
 

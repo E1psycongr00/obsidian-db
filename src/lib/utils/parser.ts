@@ -17,9 +17,9 @@ interface BuildAstOptions {
     permalinks?: string[];
 }
 
-interface TitleLink {
-    sourceTitle: string;
-    targetTitle: string;
+interface UrlLink {
+    source: string;
+    target: string;
     linkType?: "normal" | "embed";
 }
 
@@ -82,17 +82,17 @@ function extractLinks(
     const defaultExtractors = [
         {
             extract(ast: Root) {
-                const links: TitleLink[] = [];
+                const links: UrlLink[] = [];
                 visit(ast, "wikiLink", (node: any) => {
                     links.push({
-                        sourceTitle: meta.title ?? "",
-                        targetTitle: node.data.permalink,
+                        source: meta.title ?? "",
+                        target: node.data.permalink,
                     });
                 });
             },
         } as LinkExtractor,
     ];
-    const links: TitleLink[] = [];
+    const links: UrlLink[] = [];
     linkExtractors = linkExtractors.concat(defaultExtractors);
     for (const linkExtractor of linkExtractors) {
         links.concat(linkExtractor.extract(ast));
@@ -103,10 +103,10 @@ function extractLinks(
 export {
     ParseOptions,
     BuildAstOptions,
-    TitleLink,
+    UrlLink,
     LinkExtractor,
     buildAst,
     extractMetadata,
     extractLinks,
-    parseFile
+    parseFile,
 };

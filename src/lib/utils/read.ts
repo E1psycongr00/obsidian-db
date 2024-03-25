@@ -25,10 +25,10 @@ async function batchInsertDirectories(
     const fileData = await db.select("id", "urlPath").from("files");
     const links = titleLinks.map(link => {
         const sourceId: number = fileData.find(
-            f => f.urlPath === link.sourceTitle
+            f => f.urlPath === link.source
         )?.id;
         const targetId: number = fileData.find(
-            f => f.urlPath === link.targetTitle
+            f => f.urlPath === link.target
         )?.id;
         const type: "normal" | "embed" = link.linkType || "normal";
         return {
@@ -45,7 +45,10 @@ function transFiles(filePaths: string[], parseOptions?: ParseOptions) {
     const titleLinks = [];
     for (const filePath of filePaths) {
         const file = fs.readFileSync(filePath, "utf8");
-        const { metaData: metadata, links: fileLinks} = parseFile(file, parseOptions);
+        const { metaData: metadata, links: fileLinks } = parseFile(
+            file,
+            parseOptions
+        );
         const { urlPath, fileType } = splitFilePath(filePath);
         files.push({
             filePath,
