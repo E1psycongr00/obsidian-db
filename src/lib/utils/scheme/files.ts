@@ -33,7 +33,7 @@ async function createFilesTable(db: Knex) {
     await db.schema.dropTableIfExists(Files);
     await db.schema.createTable(Files, (table: Knex.CreateTableBuilder) => {
         table.increments("id");
-        table.string("filePath").notNullable();
+        table.string("filePath").notNullable().unique();
         table.string("urlPath").notNullable();
         table.string("fileType").notNullable();
         table.jsonb("metadata");
