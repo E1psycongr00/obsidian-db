@@ -3,7 +3,7 @@ import { findFilePathsAll } from "../../../src/lib/utils/filePath";
 import * as path from "path";
 
 describe("findFilesAll", () => {
-    it("should return the full path of a file", () => {
+    it("자식 디렉토리 파일을 반환해야 함", () => {
         const rootDir = path.join("./test/__mock__", "contents");
         const files = findFilePathsAll(rootDir);
         expect(files).toEqual([
@@ -15,4 +15,6 @@ describe("findFilesAll", () => {
             "test/__mock__/contents/dep1b/E.md",
         ]);
     });
+
+
 });
