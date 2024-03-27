@@ -8,6 +8,7 @@ import * as fs from "fs";
 import { visit } from "unist-util-visit";
 import { Metadata } from "./scheme/files.js";
 import { File } from "./scheme/files.js";
+import path from "path";
 
 
 interface ParseOptions {
@@ -42,12 +43,12 @@ class Parser {
         this.linkExtractors = this.initLinkExtractors(linkExtractors);
     }
 
-    public parseFile(filePath: string) {
+    public parseFile(filePath: string, rootDir: string) {
         const source = fs.readFileSync(filePath, "utf-8");
         const { content } = matter(source);
         const ast = this.parseAst(content);
         const metadata = this.parseMetadata(source);
-        const { urlPath, fileType } = this.splitFilePath(filePath);
+        const { urlPath, fileType } = this.splitFilePath(path.relative(rootDir, filePath));
         const links = this.parseLinks(ast, urlPath);
         const file = {
             filePath: filePath,
