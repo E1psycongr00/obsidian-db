@@ -33,7 +33,7 @@ describe("batchInsertDirectories", () => {
     });
 
     it("should insert directories and files into the database", async () => {
-        const dir = path.join(process.cwd(), "test", "__mock__", "contents");
+        const dir = path.resolve("test", "__mock__", "contents");
         const permalinks = findFilePathsAll(dir).map(
             filePath => splitFilePath(filePath).urlPath
         );
@@ -45,10 +45,10 @@ describe("batchInsertDirectories", () => {
     });
 
     it("should insert links between files into the database", async () => {
-        const dir = path.join(process.cwd(), "test", "__mock__", "contents");
+        const dir = path.resolve("test", "__mock__", "contents");
         const permalinks = findFilePathsAll(dir).map(
             filePath => splitFilePath(filePath).urlPath
-        );
+        ).map(urlPath => path.relative(dir, urlPath));
         const parser = new Parser({ permalinks });
         await batchInsertDirectories(db, dir, parser);
 
@@ -57,7 +57,7 @@ describe("batchInsertDirectories", () => {
     });
 
     it("should insert tags into the database", async () => {
-        const dir = path.join(process.cwd(), "test", "__mock__", "contents");
+        const dir = path.resolve("test", "__mock__", "contents");
         const permalinks = findFilePathsAll(dir).map(
             filePath => splitFilePath(filePath).urlPath
         );

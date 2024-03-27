@@ -12,16 +12,16 @@ export interface Link {
 }
 
 export async function createLinkTable(db: Knex) {
-    db.schema.createTable(Links, (table: Knex.CreateTableBuilder) => {
+    await db.schema.dropTableIfExists(Links);
+    await db.schema.createTable(Links, (table: Knex.CreateTableBuilder) => {
         table.increments("id");
         table.integer("sourceFileId").references("files.id");
         table.integer("targetFileId").references("files.id");
         table.enu("type", ["normal", "embed"]);
-        
+
         table.unique(["sourceFileId", "targetFileId"]);
-    }).then(() => {
-        console.log("links table created");
-    })
+    });
+    console.log("links table created");
 }
 
 export async function batchInsertLinks(

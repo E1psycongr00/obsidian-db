@@ -7,18 +7,18 @@ import { Link } from "./scheme/links.js";
 
 async function batchInsertDirectories(db: Knex, dir: string, parser: Parser) {
     const filePaths = findFilePathsAll(dir);
-    const { files, urlLinks } = transFiles(filePaths, parser);
+    const { files, urlLinks } = transFiles(parser, filePaths, dir);
     await batchInsertFiles(db, files);
     const fileData = await db.select("id", "urlPath").from("files");
     const links = convertIdLinks(fileData, urlLinks);
     await batchInsertLinks(db, links);
 }
 
-function transFiles(filePaths: string[], parser: Parser) {
+function transFiles(parser: Parser, filePaths: string[], dir: string) {
     const files = [];
     const urlLinks = [];
     for (const filePath of filePaths) {
-        const { file, links } = parser.parseFile(filePath);
+        const { file, links } = parser.parseFile(filePath, dir);
         files.push(file);
         urlLinks.push(...links);
     }

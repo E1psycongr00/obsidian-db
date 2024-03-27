@@ -55,14 +55,9 @@ describe("Parser", () => {
     describe("parseFile", () => {
         it("should parse file content", () => {
             const parser = new Parser();
-            const filePath = path.join(
-                process.cwd(),
-                "test",
-                "__mock__",
-                "contents",
-                "A.md"
-            );
-            const {file, links} = parser.parseFile(filePath);
+            const filePath = path.resolve("test/__mock__/contents/A.md");
+            const {file, links} = parser.parseFile(filePath, "test/__mock__/contents");
+            console.log(file);
             expect(file).toBeTruthy();
             expect(links).toBeTruthy();
         });
