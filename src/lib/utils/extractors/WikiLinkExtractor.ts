@@ -1,5 +1,5 @@
-import LinkExtractor from "./linkExtractor";
-import AbstractLinkExtractor from "./AbstractLinkExtractor";
+import LinkExtractor from "./linkExtractor.js";
+import AbstractLinkExtractor from "./AbstractLinkExtractor.js";
 
 class WikiLinkExtractor extends AbstractLinkExtractor implements LinkExtractor {
     constructor() {

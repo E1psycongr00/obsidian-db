@@ -1,6 +1,6 @@
 import { Root } from "remark-gfm";
 import { visit } from "unist-util-visit";
-import LinkExtractor from "./linkExtractor";
+import LinkExtractor from "./linkExtractor.js";
 
 abstract class AbstractLinkExtractor implements LinkExtractor {
     private readonly linkType: string;
