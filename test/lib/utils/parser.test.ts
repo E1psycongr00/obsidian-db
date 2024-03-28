@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import Parser from "../../../src/lib/utils/parser";
 import { visit } from "unist-util-visit";
 import path from "path";
