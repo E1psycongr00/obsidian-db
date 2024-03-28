@@ -1,5 +1,5 @@
 import ImageWikiLinkExtractor from "../../../../src/lib/utils/extractors/ImageWikiLinkExtractor";
-import Parser from "../../../../src/lib/utils/Parser";
+import Parser from "../../../../src/lib/utils/parser";
 import { describe, it } from "vitest";
 
 describe("ImageLinkExtractor", () => {
