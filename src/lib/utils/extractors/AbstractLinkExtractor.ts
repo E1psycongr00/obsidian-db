@@ -13,7 +13,9 @@ abstract class AbstractLinkExtractor implements LinkExtractor {
         const targetLinks: string[] = [];
         visit(ast, this.linkType, (node: any) => {
             const targetLink = this.customExtractLogic(node);
-            targetLinks.push(targetLink);
+            if (targetLink) {
+                targetLinks.push(targetLink);
+            }
         });
         return targetLinks;
     }
