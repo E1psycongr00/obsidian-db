@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { findFilePathsAll } from "../../../src/lib/utils/filePath";
+import { findFilePathsAll } from "../../../../src/lib/utils/permalinks/filePath";
 import * as path from "path";
 
 describe("findFilesAll", () => {
@@ -15,6 +15,4 @@ describe("findFilesAll", () => {
             "test/__mock__/contents/dep1b/E.md",
         ]);
     });
-
-
 });
