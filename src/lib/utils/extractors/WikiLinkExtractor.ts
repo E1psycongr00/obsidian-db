@@ -8,7 +8,7 @@ class WikiLinkExtractor extends AbstractLinkExtractor implements LinkExtractor {
 
     protected customExtractLogic(node: any): string {
         const data = node.data;
-        if (data.isEmbed === true && data.exists === true) {
+        if (data.isEmbed === false && data.exists === true) {
             return data.permalink;
         }
         return "";
