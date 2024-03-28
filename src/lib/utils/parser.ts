@@ -10,7 +10,8 @@ import { File } from "./scheme/files.js";
 import path from "path";
 import LinkExtractor from "./extractors/linkExtractor.js";
 import WikiLinkExtractor from "./extractors/WikiLinkExtractor.js";
-
+import MdLinkExtractor from "./extractors/MdLinkExtractor.js";
+import ImageWikiLinkExtractor from "./extractors/ImageWikiLinkExtractor.js";
 
 interface ParseOptions {
     buildAstOptions?: BuildAstOptions;
@@ -45,7 +46,9 @@ class Parser {
         const { content } = matter(source);
         const ast = this.parseAst(content);
         const metadata = this.parseMetadata(source);
-        const { urlPath, fileType } = this.splitFilePath(path.relative(rootDir, filePath));
+        const { urlPath, fileType } = this.splitFilePath(
+            path.relative(rootDir, filePath)
+        );
         const links = this.parseLinks(ast, urlPath);
         const file = {
             filePath: filePath,
@@ -107,7 +110,14 @@ class Parser {
 
     private initLinkExtractors(linkExtractors: LinkExtractor[]) {
         const wikiLinkExtractor = new WikiLinkExtractor();
-        return [...linkExtractors, wikiLinkExtractor];
+        const mdLinkExtractor = new MdLinkExtractor();
+        const imageLinkextractor = new ImageWikiLinkExtractor();
+        return [
+            ...linkExtractors,
+            wikiLinkExtractor,
+            mdLinkExtractor,
+            imageLinkextractor,
+        ];
     }
 
     private splitFilePath(filePath: string) {
@@ -119,8 +129,4 @@ class Parser {
 }
 
 export default Parser;
-export {
-    ParseOptions,
-    BuildAstOptions,
-    UrlLink
-};
+export { ParseOptions, BuildAstOptions, UrlLink };
