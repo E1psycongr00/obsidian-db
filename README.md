@@ -1,7 +1,115 @@
-## 요약
+# 프로젝트 소개
 
-초기 설정
+obsidian의 그래프를 위해 파일(Node), 파일간 링크(Link)의 관계를 저장하는 블로그용 간이 DB
 
+## 특징
+
+- obsidian을 위한 간이 db 프로젝트 (Sqlite3만 지원)
+- obsidian-short 알고리즘 기반으로 적용되어 있음 (추후에 상대 경로, 절대 경로 지원 선택 할 수 있도록 인터페이스 제공 고려중)
+- [portalJS](https://www.npmjs.com/package/@portaljs/remark-wiki-link) 라이브러리에 의존해서 링크 추출 
+
+## 스키마
+
+[Obsidian-db ERD cloud](https://www.erdcloud.com/d/ndNdpprfxSYydGitb)
+
+![](obsidian-db.png)
+
+## 사용 방법
+
+### ObsidianDB 생성
+
+```ts
+import { ObsidianDbBuilder } from "obsidian-db";
+
+const obdb = new ObsidianDbBuilder("content")
+    .withKnexConfig({
+        client: "sqlite3",
+        connection: {
+            filename: "./obsidian.db",
+        },
+        useNullAsDefault: true,
+    })
+    .withBuildAstOptions({
+        // remarkPlugins: [],
+        permalinks: ["a", "b"],
+    })
+    // .addLinkExtractor(linkExtractor)
+    .build();
+
+await obdb.init();
+
+export default obdb;
+```
+
+- ObsidianDbBuilder는 ObsidianDB 인스턴스를 생성하는 빌더 클래스이다.
+- "content"에는 본인이 적용하고자 폴더의 `상대 경로`를 입력한다.
+- withKnexConfig는 kndex 설정으로 왠만하면 그대로 사용한다.
+- withBuildAstOptions는 remark-wiki-link 파싱 옵션으로 permalinks를 잘 설정해준다.(permalinks는 obsidian-short-path의 알고리즘에 이용될 경로 리스트이다.)
+- 기본적으로 적용되는 extractor 이외에 추가로 적용하고 싶은 extractor가 있다면 addLinkExtractor를 이용하여 추가한다.
+
+### 사용자 정의 extractor
+
+```ts
+class WikiLinkExtractor extends AbstractLinkExtractor implements LinkExtractor {
+    constructor() {
+        super("wikiLink");
+    }
+
+    protected customExtractLogic(node: any): string {
+        const data = node.data;
+        if (data.isEmbed === false && data.exists === true) {
+            return data.permalink;
+        }
+        return "";
+    }
+}
+
+export default WikiLinkExtractor;
+```
+
+- constructor에는 추출할 type을 정한다. ast는 mdast 기준이다.
+- customExtractLogic은 ast에서 추출할 데이터를 string 타입으로 리턴한다.
+- 위의 과정을 모두 따르면 추출 로직을 재귀적으로 탐색하며 추출한다.
+
+### 쿼리
+
+ObsidianDB는 4가지 쿼리를 제공한다.
+- findFiles
+- findUrlLinksAll
+- findUrlLinksForward
+- findUrlLinksBackward
+
+#### findFiles
+
+findFiles 검색 옵션은 다음과 같은 인터페이스로 제공한다.
+
+```ts
+interface SelectFileCondition {
+    where?: {
+        id?: number;
+        filePath?: string;
+        urlPath?: string;
+        fileType?: string;
+        title?: string;
+        tagNames?: string[];
+    };
+    limit?: number;
+}
+```
+
+where의 경우 모두 and 조건으로 연결된다.
+
+#### findUrlLinksAll
+
+모든 Url 링크를 리턴한다. 
+
+#### findUrlLinksForward
+
+특정 파일에서 연결된 링크를 리턴한다.
+
+#### findUrlLinksBackward
+
+특정 파일로 들어오는 링크를 리턴한다.
 
 ## 변경 사항
 
@@ -26,3 +134,5 @@
 - 0.2.7:
     - Extractor 객체 분리 및 구조 개선
     - Wiki link Extractor, MdLinkExtractor 추가
+- 0.2.8:
+    - Link Query 수정
