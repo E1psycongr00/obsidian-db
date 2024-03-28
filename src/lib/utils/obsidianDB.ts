@@ -46,6 +46,10 @@ class ObsidianDb {
         await batchInsertDirectories(this.knexDb, this.parseDirectory, this.parser);
     }
 
+    public db() {
+        return this.knexDb();
+    }
+
     public async findFiles(condition: SelectFileCondition) {
         return await findFiles(this.knexDb, condition);
     }
@@ -64,10 +68,10 @@ class ObsidianDb {
 }
 
 class ObsidianDbBuilder {
-    knexConfig: Knex.Config = {};
-    buildAstOptions: BuildAstOptions = {};
-    extractors: LinkExtractor[] = [];
-    parseDirectory: string;
+    private knexConfig: Knex.Config = {};
+    private buildAstOptions: BuildAstOptions = {};
+    private extractors: LinkExtractor[] = [];
+    private parseDirectory: string;
 
     constructor(parseDirectory: string) {
         this.parseDirectory = parseDirectory;
