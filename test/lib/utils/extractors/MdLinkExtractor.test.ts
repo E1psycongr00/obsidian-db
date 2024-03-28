@@ -9,7 +9,6 @@ describe("MdLinkExtractor", () => {
             permalinks: ["/test/__mock__/contents/A"],
         });
         const ast = parser.parseAst("[link!!](/test/__mock__/contents/A)");
-        console.log(JSON.stringify(ast, null, 2));
         const links = extractor.extract(ast);
         expect(links).toEqual(["/test/__mock__/contents/A"]);
     });
