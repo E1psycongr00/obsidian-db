@@ -78,6 +78,7 @@ ObsidianDB는 4가지 쿼리를 제공한다.
 - findUrlLinksAll
 - findUrlLinksForward
 - findUrlLinksBackward
+- db()
 
 #### findFiles
 
@@ -111,6 +112,10 @@ where의 경우 모두 and 조건으로 연결된다.
 
 특정 파일로 들어오는 링크를 리턴한다.
 
+#### db()
+
+내부의 knexDb 인스턴스를 리턴한다. 이를 활용해서 db에 직접 쿼리를 작성할 수 있다.(Knex)
+
 ## 변경 사항
 
 - 0.1.0:
@@ -134,5 +139,7 @@ where의 경우 모두 and 조건으로 연결된다.
 - 0.2.7:
     - Extractor 객체 분리 및 구조 개선
     - Wiki link Extractor, MdLinkExtractor 추가
-- 0.2.8:
+- 0.3.0:
     - Link Query 수정
+    - knexDb 인터페이스 제공
+    - abstract link extractor 와 인터페이스 제공
