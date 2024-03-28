@@ -1,6 +1,5 @@
 import { Knex } from "knex";
 import { Link, Links } from "../scheme/links.js";
-import { UrlLink } from "../parser.js";
 
 const CHUNK_SIZE = 1000;
 
@@ -21,65 +20,38 @@ function batchInsertLinks(db: Knex, links: Link[], chunkSize = CHUNK_SIZE) {
 }
 
 async function findLinksAll(db: Knex) {
-    const result = await db(Links)
+    return await db(Links)
         .select(
-            "source.metadata as sourceMetadata",
-            "target.metadata as targetMetadata",
+            "s.urlPath as source",
+            "t.urlPath as target",
             "links.type as type"
         )
-        .join("files as source", "source.id", "links.sourceFileId")
-        .join("files as target", "target.id", "links.targetFileId");
-    return result.map(r => {
-        r.sourceMetadata = JSON.parse(r.sourceMetadata);
-        r.targetMetadata = JSON.parse(r.targetMetadata);
-        return {
-            source: r.sourceMetadata.title,
-            target: r.targetMetadata.title,
-            type: r.type,
-        } as UrlLink;
-    });
+        .join("files as s", "s.id", "links.sourceFileId")
+        .join("files as t", "t.id", "links.targetFileId");
 }
 
 async function findLinksForward(db: Knex, fileId: number) {
-    const result = await db(Links)
+    return await db(Links)
         .select(
-            "source.metadata as sourceMetadata",
-            "target.metadata as targetMetadata",
+            "s.urlPath as source",
+            "t.urlPath as target",
             "links.type as type"
         )
-        .join("files as source", "source.id", "links.sourceFileId")
-        .join("files as target", "target.id", "links.targetFileId")
-        .where("source.id", fileId);
-    return result.map(r => {
-        r.sourceMetadata = JSON.parse(r.sourceMetadata);
-        r.targetMetadata = JSON.parse(r.targetMetadata);
-        return {
-            source: r.sourceMetadata.title,
-            target: r.targetMetadata.title,
-            type: r.type,
-        } as UrlLink;
-    });
+        .join("files as s", "s.id", "links.sourceFileId")
+        .join("files as t", "t.id", "links.targetFileId")
+        .where("s.id", fileId);
 }
 
 async function findLinksBackward(db: Knex, fileId: number) {
-    const result = await db(Links)
+    return await db(Links)
         .select(
-            "source.metadata as sourceMetadata",
-            "target.metadata as targetMetadata",
+            "s.urlPath as source",
+            "t.urlPath as target",
             "links.type as type"
         )
-        .join("files as source", "source.id", "links.sourceFileId")
-        .join("files as target", "target.id", "links.targetFileId")
-        .where("target.id", fileId);
-    return result.map(r => {
-        r.sourceMetadata = JSON.parse(r.sourceMetadata);
-        r.targetMetadata = JSON.parse(r.targetMetadata);
-        return {
-            source: r.sourceMetadata.title,
-            target: r.targetMetadata.title,
-            type: r.type,
-        } as UrlLink;
-    });
+        .join("files as s", "s.id", "links.sourceFileId")
+        .join("files as t", "t.id", "links.targetFileId")
+        .where("t.id", fileId);
 }
 
 export { batchInsertLinks, findLinksAll, findLinksForward, findLinksBackward };
