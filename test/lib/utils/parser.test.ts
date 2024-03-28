@@ -43,7 +43,7 @@ describe("Parser", () => {
 
     describe("extractLinks", () => {
         it("should extract links", () => {
-            const parser = new Parser();
+            const parser = new Parser({ permalinks: ["link"]});
             const source = "# Hello World [[link]]";
             const ast = parser.parseAst(source);
             const links = parser.parseLinks(ast, "source");

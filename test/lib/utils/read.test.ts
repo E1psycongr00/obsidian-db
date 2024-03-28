@@ -9,7 +9,7 @@ import {
 import { createLinkTable } from "../../../src/lib/utils/scheme/links";
 import path from "path";
 import Parser from "../../../src/lib/utils/parser";
-import { findFilePathsAll } from "../../../src/lib/utils/filePath";
+import { findFilePathsAll } from "../../../src/lib/utils/permalinks/filePath";
 
 describe("batchInsertDirectories", () => {
     let db: Knex;
