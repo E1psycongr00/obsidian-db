@@ -1,7 +1,6 @@
 import knex, { Knex } from "knex";
 import Parser, {
     BuildAstOptions,
-    LinkExtractor,
     ParseOptions,
 } from "./parser.js";
 import {
@@ -17,6 +16,7 @@ import {
     findLinksBackward,
     findLinksForward,
 } from "./query/linkQuery.js";
+import LinkExtractor from "./extractors/linkExtractor.js";
 
 interface DbConfig {
     knexConfig: Knex.Config;

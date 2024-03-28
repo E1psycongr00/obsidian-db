@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import Parser from "../../../src/lib/utils/parser";
 import { visit } from "unist-util-visit";
 import path from "path";
@@ -43,7 +43,7 @@ describe("Parser", () => {
 
     describe("extractLinks", () => {
         it("should extract links", () => {
-            const parser = new Parser();
+            const parser = new Parser({ permalinks: ["link"]});
             const source = "# Hello World [[link]]";
             const ast = parser.parseAst(source);
             const links = parser.parseLinks(ast, "source");
@@ -57,7 +57,6 @@ describe("Parser", () => {
             const parser = new Parser();
             const filePath = path.resolve("test/__mock__/contents/A.md");
             const {file, links} = parser.parseFile(filePath, "test/__mock__/contents");
-            console.log(file);
             expect(file).toBeTruthy();
             expect(links).toBeTruthy();
         });

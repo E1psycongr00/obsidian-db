@@ -5,11 +5,13 @@ import gfm, { Root } from "remark-gfm";
 import { Plugin } from "unified";
 import matter from "gray-matter";
 import * as fs from "fs";
-import { visit } from "unist-util-visit";
 import { Metadata } from "./scheme/files.js";
 import { File } from "./scheme/files.js";
 import path from "path";
-
+import LinkExtractor from "./extractors/linkExtractor.js";
+import WikiLinkExtractor from "./extractors/WikiLinkExtractor.js";
+import MdLinkExtractor from "./extractors/MdLinkExtractor.js";
+import ImageWikiLinkExtractor from "./extractors/ImageWikiLinkExtractor.js";
 
 interface ParseOptions {
     buildAstOptions?: BuildAstOptions;
@@ -25,10 +27,6 @@ interface UrlLink {
     source: string;
     target: string;
     linkType?: "normal" | "embed";
-}
-
-interface LinkExtractor {
-    extract: (ast: Root) => string[];
 }
 
 class Parser {
@@ -48,7 +46,9 @@ class Parser {
         const { content } = matter(source);
         const ast = this.parseAst(content);
         const metadata = this.parseMetadata(source);
-        const { urlPath, fileType } = this.splitFilePath(path.relative(rootDir, filePath));
+        const { urlPath, fileType } = this.splitFilePath(
+            path.relative(rootDir, filePath)
+        );
         const links = this.parseLinks(ast, urlPath);
         const file = {
             filePath: filePath,
@@ -109,14 +109,15 @@ class Parser {
     }
 
     private initLinkExtractors(linkExtractors: LinkExtractor[]) {
-        const wikiLinkExtractor = function (ast: Root) {
-            const targetLinks: string[] = [];
-            visit(ast, "wikiLink", (node: any) => {
-                targetLinks.push(node.data.permalink);
-            });
-            return targetLinks;
-        };
-        return [...linkExtractors, { extract: wikiLinkExtractor }];
+        const wikiLinkExtractor = new WikiLinkExtractor();
+        const mdLinkExtractor = new MdLinkExtractor();
+        const imageLinkextractor = new ImageWikiLinkExtractor();
+        return [
+            ...linkExtractors,
+            wikiLinkExtractor,
+            mdLinkExtractor,
+            imageLinkextractor,
+        ];
     }
 
     private splitFilePath(filePath: string) {
@@ -128,9 +129,4 @@ class Parser {
 }
 
 export default Parser;
-export {
-    ParseOptions,
-    BuildAstOptions,
-    UrlLink,
-    LinkExtractor,
-};
+export { ParseOptions, BuildAstOptions, UrlLink };

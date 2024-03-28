@@ -1,4 +1,4 @@
-import { findFilePathsAll } from "./filePath.js";
+import { findFilePathsAll } from "./permalinks/filePath.js";
 import Parser, { UrlLink } from "./parser.js";
 import { batchInsertFiles } from "./query/fileQuery.js";
 import { batchInsertLinks } from "./query/linkQuery.js";

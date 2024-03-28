@@ -23,3 +23,6 @@
     - 파일 path 컬럼 유니크 설정
     - 링크 잘못된 오류 메시지 출력 수정
     - 링크 urlPath에 basePath가 나오지 않도록 수정
+- 0.2.7:
+    - Extractor 객체 분리 및 구조 개선
+    - Wiki link Extractor, MdLinkExtractor 추가
