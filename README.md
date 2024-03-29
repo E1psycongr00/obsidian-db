@@ -116,6 +116,14 @@ where의 경우 모두 and 조건으로 연결된다.
 
 내부의 knexDb 인스턴스를 리턴한다. 이를 활용해서 db에 직접 쿼리를 작성할 수 있다.(Knex)
 
+### permalink와 filePath 유틸 클래스 제공
+```ts
+    findFilePathsAll(rootDir: string, extension: string[] = []);
+    findPermalinksAll(rootDir: string, extension: string[] = []);
+    toPermalink(filePath: string, basePath: string);
+    fixWindowPath(filePath: string);
+```
+
 ## 변경 사항
 
 - 0.1.0:
@@ -143,3 +151,6 @@ where의 경우 모두 and 조건으로 연결된다.
     - Link Query 수정
     - knexDb 인터페이스 제공
     - abstract link extractor 와 인터페이스 제공
+-  0.4.0:
+   -  filePath와 permalink 유틸 인터페이스 제공
+   -  findPathsAll과 findPermalinksAll 인자에 extension 에 따른 필터 제공
