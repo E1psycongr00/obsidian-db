@@ -47,7 +47,7 @@ class ObsidianDb {
     }
 
     public db() {
-        return this.knexDb();
+        return this.knexDb;
     }
 
     public async findFiles(condition: SelectFileCondition) {
