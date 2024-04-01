@@ -48,7 +48,7 @@ describe("batchInsertDirectories", () => {
         const dir = path.resolve("test", "__mock__", "contents");
         const permalinks = findFilePathsAll(dir).map(
             filePath => splitFilePath(filePath).urlPath
-        ).map(urlPath => path.relative(dir, urlPath));
+        ).map(urlPath => path.relative(dir, urlPath).replace(/\\/g, "/"));
         const parser = new Parser({ permalinks });
         await batchInsertDirectories(db, dir, parser);
 
@@ -76,7 +76,7 @@ describe("batchInsertDirectories", () => {
     function splitFilePath(filePath: string) {
         const split = filePath.split(".");
         const fileType = split[split.length - 1];
-        const urlPath = split.slice(0, split.length - 1).join(".");
+        const urlPath = split.slice(0, split.length - 1).join(".").replace(/\\/g, "/");
         return { urlPath, fileType };
     }
 });
