@@ -1,6 +1,7 @@
 import { beforeEach } from "node:test";
 import {
     batchInsertFiles,
+    findFileWhere,
     findFiles,
     findTagsAll,
     findTagsByFileIds,
@@ -61,6 +62,96 @@ describe("batchInsertFiles", () => {
         expect(tagCount[0]["count(*)"]).toBe(10 + 1);
         expect(fileTagsCount[0]["count(*)"]).toBe(10 * 2);
     });
+
+    afterAll(async () => {
+        await db.destroy();
+    });
+});
+
+describe("fileFileWhere", () => {
+    let db: Knex;
+
+    beforeAll(async () => {
+        db = knex({
+            client: "sqlite3",
+            connection: {
+                filename: ":memory:",
+            },
+            useNullAsDefault: true,
+        });
+        await createFilesTable(db);
+        await createTagsTable(db);
+        await createFileTagsTable(db);
+    });
+
+    beforeEach(async () => {
+        await db("files").delete();
+        await db("tags").delete();
+        await db("fileTags").delete();
+    });
+
+    it("where가 없으면 오류 출력", async () => {
+        await expect(findFileWhere(db, {})).rejects.toThrow();
+    });
+
+    it("filePath로 데이터를 가져온다", async () => {
+        const files = Array.from({ length: 10 }, (_, i) => {
+            return {
+                filePath: `file${i}.md`,
+                urlPath: `file${i}`,
+                fileType: "md",
+                metadata: {
+                    title: `file${i}`,
+                    date: "2021-01-01",
+                    tags: [`tag${i}`, `tag${i + 1}`],
+                },
+            } as File;
+        });
+
+        await batchInsertFiles(db, files);
+        const resultFile: File = await findFileWhere(db, {filePath: "file1.md"});
+        expect(resultFile.filePath).toBe("file1.md");
+    });
+
+    it("urlPath로 데이터를 가져온다", async () => {
+        const files = Array.from({ length: 10 }, (_, i) => {
+            return {
+                filePath: `file${i}.md`,
+                urlPath: `file${i}`,
+                fileType: "md",
+                metadata: {
+                    title: `file${i}`,
+                    date: "2021-01-01",
+                    tags: [`tag${i}`, `tag${i + 1}`],
+                },
+            } as File;
+        });
+
+        await batchInsertFiles(db, files);
+        const resultFile: File = await findFileWhere(db, {urlPath: "file1"});
+        expect(resultFile.urlPath).toBe("file1");
+    });
+
+    it("title로 데이터를 가져온다", async () => {
+        const files = Array.from({ length: 10 }, (_, i) => {
+            return {
+                filePath: `file${i}.md`,
+                urlPath: `file${i}`,
+                fileType: "md",
+                metadata: {
+                    title: `file${i}`,
+                    date: "2021-01-01",
+                    tags: [`tag${i}`, `tag${i + 1}`],
+                },
+            } as File;
+        });
+
+        await batchInsertFiles(db, files);
+        const resultFile: File = await findFileWhere(db, {title: "file1"});
+        expect(resultFile.metadata.title).toBe("file1");
+    });
+
+
 
     afterAll(async () => {
         await db.destroy();
