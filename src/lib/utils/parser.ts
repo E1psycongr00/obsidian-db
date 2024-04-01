@@ -123,7 +123,7 @@ class Parser {
     private splitFilePath(filePath: string) {
         const split = filePath.split(".");
         const fileType = split[split.length - 1];
-        const urlPath = split.slice(0, split.length - 1).join(".");
+        const urlPath = split.slice(0, split.length - 1).join(".").replace(/\\/g, "/");
         return { urlPath, fileType };
     }
 }
