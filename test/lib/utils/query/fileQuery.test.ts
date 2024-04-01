@@ -2,7 +2,7 @@ import { beforeEach } from "node:test";
 import {
     batchInsertFiles,
     findFileWhere,
-    findFiles,
+    findFilesAll,
     findTagsAll,
     findTagsByFileIds,
 } from "../../../../src/lib/utils/query/fileQuery";
@@ -84,17 +84,14 @@ describe("fileFileWhere", () => {
         await createFileTagsTable(db);
     });
 
-    beforeEach(async () => {
-        await db("files").delete();
-        await db("tags").delete();
-        await db("fileTags").delete();
-    });
-
     it("where가 없으면 오류 출력", async () => {
         await expect(findFileWhere(db, {})).rejects.toThrow();
     });
 
     it("filePath로 데이터를 가져온다", async () => {
+        await db("files").delete();
+        await db("tags").delete();
+        await db("fileTags").delete();
         const files = Array.from({ length: 10 }, (_, i) => {
             return {
                 filePath: `file${i}.md`,
@@ -109,11 +106,16 @@ describe("fileFileWhere", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFile: File = await findFileWhere(db, {filePath: "file1.md"});
+        const resultFile: File = await findFileWhere(db, {
+            filePath: "file1.md",
+        });
         expect(resultFile.filePath).toBe("file1.md");
     });
 
     it("urlPath로 데이터를 가져온다", async () => {
+        await db("files").delete();
+        await db("tags").delete();
+        await db("fileTags").delete();
         const files = Array.from({ length: 10 }, (_, i) => {
             return {
                 filePath: `file${i}.md`,
@@ -128,11 +130,14 @@ describe("fileFileWhere", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFile: File = await findFileWhere(db, {urlPath: "file1"});
+        const resultFile: File = await findFileWhere(db, { urlPath: "file1" });
         expect(resultFile.urlPath).toBe("file1");
     });
 
     it("title로 데이터를 가져온다", async () => {
+        await db("files").delete();
+        await db("tags").delete();
+        await db("fileTags").delete();
         const files = Array.from({ length: 10 }, (_, i) => {
             return {
                 filePath: `file${i}.md`,
@@ -147,18 +152,16 @@ describe("fileFileWhere", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFile: File = await findFileWhere(db, {title: "file1"});
+        const resultFile: File = await findFileWhere(db, { title: "file1" });
         expect(resultFile.metadata.title).toBe("file1");
     });
-
-
 
     afterAll(async () => {
         await db.destroy();
     });
 });
 
-describe("selectFiles", () => {
+describe("findFilesAll", () => {
     let db: Knex;
 
     beforeAll(async () => {
@@ -192,7 +195,7 @@ describe("selectFiles", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFiles: File[] = await findFiles(db, {
+        const resultFiles: File[] = await findFilesAll(db, {
             where: { filePath: "file1.md" },
         });
         expect(resultFiles.length).toBe(1);
@@ -217,8 +220,12 @@ describe("selectFiles", () => {
         });
 
         await batchInsertFiles(db, files);
-        const fileId  = await db("files").select("id").where({ filePath: "file0.md" });
-        const resultFiles: File[] = await findFiles(db, { where: { id: fileId[0].id } });
+        const fileId = await db("files")
+            .select("id")
+            .where({ filePath: "file0.md" });
+        const resultFiles: File[] = await findFilesAll(db, {
+            where: { id: fileId[0].id },
+        });
         expect(resultFiles.length).toBe(1);
         expect(resultFiles[0].filePath).toBe("file0.md");
     });
@@ -241,7 +248,7 @@ describe("selectFiles", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFiles: File[] = await findFiles(db, {
+        const resultFiles: File[] = await findFilesAll(db, {
             where: { title: "file1" },
         });
         expect(resultFiles.length).toBe(1);
@@ -271,7 +278,7 @@ describe("selectFiles", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFiles: File[] = await findFiles(db, {
+        const resultFiles: File[] = await findFilesAll(db, {
             where: { urlPath: "file1" },
         });
         expect(resultFiles.length).toBe(1);
@@ -297,7 +304,9 @@ describe("selectFiles", () => {
         });
 
         await batchInsertFiles(db, files);
-        const resultFiles: File[] = await findFiles(db, {where: { tagNames: ["tag1"]} });
+        const resultFiles: File[] = await findFilesAll(db, {
+            where: { tagNames: ["tag1"] },
+        });
         expect(resultFiles.length).toBe(2);
         expect(resultFiles[0].metadata.tags).toContain("tag1");
         expect(resultFiles[1].metadata.tags).toContain("tag1");

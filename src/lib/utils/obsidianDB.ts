@@ -7,7 +7,7 @@ import {
 } from "./scheme/files.js";
 import { createLinkTable } from "./scheme/links.js";
 import { batchInsertDirectories } from "./read.js";
-import { SelectFileCondition, findFiles } from "./query/fileQuery.js";
+import { SelectFileCondition, findFilesAll } from "./query/fileQuery.js";
 import {
     findLinksAll,
     findLinksBackward,
@@ -56,8 +56,8 @@ class ObsidianDb {
         return this.knexDb;
     }
 
-    public async findFiles(condition: SelectFileCondition) {
-        return await findFiles(this.knexDb, condition);
+    public async findFilesAll(condition: SelectFileCondition) {
+        return await findFilesAll(this.knexDb, condition);
     }
 
     public async findUrlLinksAll() {

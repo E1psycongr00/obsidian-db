@@ -98,7 +98,13 @@ async function findFileWhere(db: Knex, condition: Record<string, any>) {
     return toFile(await query);
 }
 
-async function findFiles(db: Knex, condition: SelectFileCondition) {
+/**
+ * Finds files in the database based on the provided condition.
+ * @param db - The Knex instance representing the database connection.
+ * @param condition - The condition object specifying the search criteria.
+ * @returns A Promise that resolves to an array of files matching the condition.
+ */
+async function findFilesAll(db: Knex, condition: SelectFileCondition) {
     const query = db("files").select("files.*");
     if (condition.where) {
         Object.entries(condition.where).forEach(([key, value]) => {
@@ -157,7 +163,8 @@ export {
     SelectFileCondition,
     batchInsertFiles,
     findFileWhere,
-    findFiles,
+    findFilesAll,
     findTagsAll,
     findTagsByFileIds,
+    toFile
 };
