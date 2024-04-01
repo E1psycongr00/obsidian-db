@@ -42,6 +42,7 @@ class ObsidianDb {
             const hasTagsTable = await this.knexDb.schema.hasTable("tags");
             const hasFileTagsTable = await this.knexDb.schema.hasTable("file_tags");
             if (hasFilesTable && hasLinksTable && hasTagsTable && hasFileTagsTable) {
+                console.log("Database already exists & initialized. if you initilize, Use force 'true'.");
                 return;
             }
         }
