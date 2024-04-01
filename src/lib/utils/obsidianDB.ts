@@ -1,8 +1,5 @@
 import knex, { Knex } from "knex";
-import Parser, {
-    BuildAstOptions,
-    ParseOptions,
-} from "./parser.js";
+import Parser, { BuildAstOptions, ParseOptions } from "./parser.js";
 import {
     createFileTagsTable,
     createFilesTable,
@@ -38,7 +35,16 @@ class ObsidianDb {
         this.parseDirectory = parseDirectory;
     }
 
-    public async init() {
+    public async init(force: boolean = false) {
+        if (!force) {
+            const hasFilesTable = await this.knexDb.schema.hasTable("files");
+            const hasLinksTable = await this.knexDb.schema.hasTable("links");
+            const hasTagsTable = await this.knexDb.schema.hasTable("tags");
+            const hasFileTagsTable = await this.knexDb.schema.hasTable("file_tags");
+            if (hasFilesTable && hasLinksTable && hasTagsTable && hasFileTagsTable) {
+                return;
+            }
+        }
         await createFilesTable(this.knexDb);
         await createLinkTable(this.knexDb);
         await createTagsTable(this.knexDb);
