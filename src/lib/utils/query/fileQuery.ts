@@ -99,10 +99,10 @@ async function findFileWhere(db: Knex, condition: Record<string, any>) {
 }
 
 /**
- * Finds files in the database based on the provided condition.
- * @param db - The Knex instance representing the database connection.
- * @param condition - The condition object specifying the search criteria.
- * @returns A Promise that resolves to an array of files matching the condition.
+ * 주어진 조건에 따라 데이터베이스에서 파일을 찾습니다.
+ * @param db - 데이터베이스 연결을 나타내는 Knex 인스턴스입니다.
+ * @param condition - 검색 조건을 지정하는 조건 객체입니다.
+ * @returns 조건에 맞는 파일들의 배열을 반환하는 프로미스입니다.
  */
 async function findFilesAll(db: Knex, condition: SelectFileCondition) {
     const query = db("files").select("files.*");
