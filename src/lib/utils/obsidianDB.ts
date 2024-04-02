@@ -76,6 +76,18 @@ class ObsidianDb {
     public async findUrlLinksBackward(fileId: number) {
         return await findLinksBackward(this.knexDb, fileId);
     }
+
+    public async findNeighborLinks(fileId: number) {
+        const forward = await findLinksForward(this.knexDb, fileId);
+        const backward = await findLinksBackward(this.knexDb, fileId);
+        const linkSet = new Set();
+        for (const link of [...forward, ...backward]) {
+            if (linkSet.has(link) || linkSet.has({ target: link.target, source: link.source, type: link.type })) {
+                linkSet.add(link);
+            }
+        }
+        return Array.from(linkSet);
+    }
 }
 
 class ObsidianDbBuilder {
