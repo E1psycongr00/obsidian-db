@@ -60,5 +60,12 @@ describe("Parser", () => {
             expect(file).toBeTruthy();
             expect(links).toBeTruthy();
         });
+
+        it("index.md인 경우 urlPath가 '/'여가 한다" , () => {
+            const parser = new Parser();
+            const filePath = path.resolve("test/__mock__/contents/index.md");
+            const {file} = parser.parseFile(filePath, "test/__mock__/contents");
+            expect(file.urlPath).toBe("");
+        });
     });
 });

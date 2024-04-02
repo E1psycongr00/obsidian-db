@@ -41,7 +41,7 @@ describe("batchInsertDirectories", () => {
         await batchInsertDirectories(db, dir, parser);
 
         const fileCount = await db.count().from("files");
-        expect(fileCount[0]["count(*)"]).toBe(6);
+        expect(fileCount[0]["count(*)"]).toBe(8);
     });
 
     it("should insert links between files into the database", async () => {
