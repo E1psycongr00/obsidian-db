@@ -165,3 +165,5 @@ where의 경우 모두 and 조건으로 연결된다.
 - 0.5.2:
     - urlPath nullable하게 스키마 변경 및 입력 가능
     - permalink가 url 로직에 영향 받도록 수정(index인 경우 ""로 변경됨)
+- 0.5.3:
+    - urlPath가 매칭이 안되 link가 생성되지 않는 부분 수정

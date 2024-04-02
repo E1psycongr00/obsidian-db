@@ -14,13 +14,21 @@ abstract class AbstractLinkExtractor implements LinkExtractor {
         visit(ast, this.linkType, (node: any) => {
             const targetLink = this.customExtractLogic(node);
             if (targetLink) {
-                targetLinks.push(targetLink);
+                targetLinks.push(this.toUrlPath(targetLink));
             }
         });
         return targetLinks;
     }
 
     protected abstract customExtractLogic(node: any): string;
+
+    private toUrlPath(source: string) {
+        source = source.replace(/\\/g, "/");
+        if (source.startsWith("/") && source.length > 1) {
+            return source.slice(1);
+        }
+        return source;
+    }
 }
 
 export default AbstractLinkExtractor;

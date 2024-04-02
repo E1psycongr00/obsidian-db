@@ -9,7 +9,7 @@ import {
 import { createLinkTable } from "../../../src/lib/utils/scheme/links";
 import path from "path";
 import Parser from "../../../src/lib/utils/parser";
-import { findFilePathsAll } from "../../../src/lib/utils/permalinks/filePath";
+import { findFilePathsAll, findPermalinksAll } from "../../../src/lib/utils/permalinks/filePath";
 
 describe("batchInsertDirectories", () => {
     let db: Knex;
@@ -46,9 +46,7 @@ describe("batchInsertDirectories", () => {
 
     it("should insert links between files into the database", async () => {
         const dir = path.resolve("test", "__mock__", "contents");
-        const permalinks = findFilePathsAll(dir).map(
-            filePath => splitFilePath(filePath).urlPath
-        ).map(urlPath => path.relative(dir, urlPath).replace(/\\/g, "/"));
+        const permalinks = findPermalinksAll(dir);
         const parser = new Parser({ permalinks });
         await batchInsertDirectories(db, dir, parser);
 

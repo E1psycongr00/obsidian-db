@@ -128,6 +128,9 @@ class Parser {
             .join(".")
             .replace(/\\/g, "/")
             .replace("index", "");
+        if (urlPath === "") {
+           return { urlPath: "/", fileType };
+        }
         return { urlPath, fileType };
     }
 }

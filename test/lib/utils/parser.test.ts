@@ -65,7 +65,7 @@ describe("Parser", () => {
             const parser = new Parser();
             const filePath = path.resolve("test/__mock__/contents/index.md");
             const {file} = parser.parseFile(filePath, "test/__mock__/contents");
-            expect(file.urlPath).toBe("");
+            expect(file.urlPath).toBe("/");
         });
     });
 });
