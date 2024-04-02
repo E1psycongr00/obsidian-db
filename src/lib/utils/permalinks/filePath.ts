@@ -25,7 +25,10 @@ function findPermalinksAll(
     return result
         .filter(filePath => inExtension(filePath, extension))
         .map(filePath => toPermalink(filePath, rootDir))
-        .map(filePath => fixWindowPath(filePath));
+        .map(permalink => fixWindowPath(permalink))
+        .map(permalink => "/" + permalink)
+        .map(permalink => permalink.replace(/\/index$/, ""))
+        .map(permalink => (permalink === "" ? "/" : permalink));
 }
 
 function toPermalink(filePath: string, rootDir: string) {

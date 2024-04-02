@@ -52,7 +52,7 @@ class Parser {
         const links = this.parseLinks(ast, urlPath);
         const file = {
             filePath: filePath,
-            urlPath: urlPath,
+            urlPath: fileType === "md" || fileType === "mdx" ? urlPath : null,
             fileType: fileType,
             metadata: metadata,
         } as File;
@@ -123,7 +123,11 @@ class Parser {
     private splitFilePath(filePath: string) {
         const split = filePath.split(".");
         const fileType = split[split.length - 1];
-        const urlPath = split.slice(0, split.length - 1).join(".").replace(/\\/g, "/");
+        const urlPath = split
+            .slice(0, split.length - 1)
+            .join(".")
+            .replace(/\\/g, "/")
+            .replace("index", "");
         return { urlPath, fileType };
     }
 }
