@@ -1,8 +1,5 @@
 import knex, { Knex } from "knex";
-import Parser, {
-    BuildAstOptions,
-    ParseOptions,
-} from "./parser.js";
+import Parser, { BuildAstOptions, ParseOptions } from "./parser.js";
 import {
     createFileTagsTable,
     createFilesTable,
@@ -10,7 +7,7 @@ import {
 } from "./scheme/files.js";
 import { createLinkTable } from "./scheme/links.js";
 import { batchInsertDirectories } from "./read.js";
-import { SelectFileCondition, findFiles } from "./query/fileQuery.js";
+import { SelectFileCondition, findFileWhere, findFilesAll } from "./query/fileQuery.js";
 import {
     findLinksAll,
     findLinksBackward,
@@ -38,7 +35,17 @@ class ObsidianDb {
         this.parseDirectory = parseDirectory;
     }
 
-    public async init() {
+    public async init(force: boolean = false) {
+        if (!force) {
+            const hasFilesTable = await this.knexDb.schema.hasTable("files");
+            const hasLinksTable = await this.knexDb.schema.hasTable("links");
+            const hasTagsTable = await this.knexDb.schema.hasTable("tags");
+            const hasFileTagsTable = await this.knexDb.schema.hasTable("file_tags");
+            if (hasFilesTable && hasLinksTable && hasTagsTable && hasFileTagsTable) {
+                console.log("Database already exists & initialized. if you initilize, Use force 'true'.");
+                return;
+            }
+        }
         await createFilesTable(this.knexDb);
         await createLinkTable(this.knexDb);
         await createTagsTable(this.knexDb);
@@ -50,8 +57,12 @@ class ObsidianDb {
         return this.knexDb;
     }
 
-    public async findFiles(condition: SelectFileCondition) {
-        return await findFiles(this.knexDb, condition);
+    public async findFileWhere(condition: Record<string ,any>) {
+        return await findFileWhere(this.knexDb, condition);
+    }
+
+    public async findFilesAll(condition: SelectFileCondition) {
+        return await findFilesAll(this.knexDb, condition);
     }
 
     public async findUrlLinksAll() {
@@ -64,6 +75,18 @@ class ObsidianDb {
 
     public async findUrlLinksBackward(fileId: number) {
         return await findLinksBackward(this.knexDb, fileId);
+    }
+
+    public async findNeighborLinks(fileId: number) {
+        const forward = await findLinksForward(this.knexDb, fileId);
+        const backward = await findLinksBackward(this.knexDb, fileId);
+        const linkSet = new Set();
+        for (const link of [...forward, ...backward]) {
+            if (linkSet.has(link) || linkSet.has({ target: link.target, source: link.source, type: link.type })) {
+                linkSet.add(link);
+            }
+        }
+        return Array.from(linkSet);
     }
 }
 

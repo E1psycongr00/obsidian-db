@@ -1,11 +1,5 @@
 import { Knex } from "knex";
-import {
-    Files,
-    File,
-    Tags,
-    Tag,
-    FileTags,
-} from "../scheme/files.js";
+import { Files, File, Tags, Tag, FileTags } from "../scheme/files.js";
 
 const CHUNK_SIZE = 1000;
 
@@ -63,7 +57,54 @@ interface SelectFileCondition {
     limit?: number;
 }
 
-async function findFiles(db: Knex, condition: SelectFileCondition) {
+/**
+ * 주어진 조건에 따라 데이터베이스에서 파일을 찾습니다.
+ * 
+ * 예시
+ * ```ts
+ * const file = await findFileWhere(db, { id: 1 });
+ * ```
+ * 
+ * @param {Knex} db - 데이터베이스 연결을 나타내는 Knex 인스턴스입니다.
+ * @param {Record<string, any>} condition - 파일을 필터링하는 조건입니다.
+ * @returns {Promise<File>} - json metadata를 가공한 파일 객체 프로미스를 반환합니다.
+ * @throws {Error} - 조건이 제공되지 않은 경우 오류를 throw합니다.
+ */
+async function findFileWhere(db: Knex, condition: Record<string, any>) {
+    const query = db("files").select("*");
+    if (!condition) {
+        throw new Error("condition is required");
+    }
+    Object.entries(condition).forEach(([key, value]) => {
+        switch (key) {
+            case "title" || "date": {
+                query.andWhereRaw("??->>? = ?", ["metadata", key, value]);
+                break;
+            }
+            case "tagNames":
+                break;
+            default: {
+                query.andWhere(key, value);
+            }
+        }
+    });
+    if (condition.tagNames) {
+        query
+            .join("fileTags", "files.id", "fileTags.fileId")
+            .join("tags", "fileTags.tagId", "tags.id")
+            .whereIn("tags.name", condition.tagNames);
+    }
+    query.first();
+    return toFile(await query);
+}
+
+/**
+ * 주어진 조건에 따라 데이터베이스에서 파일을 찾습니다.
+ * @param db - 데이터베이스 연결을 나타내는 Knex 인스턴스입니다.
+ * @param condition - 검색 조건을 지정하는 조건 객체입니다.
+ * @returns 조건에 맞는 파일들의 배열을 반환하는 프로미스입니다.
+ */
+async function findFilesAll(db: Knex, condition: SelectFileCondition) {
     const query = db("files").select("files.*");
     if (condition.where) {
         Object.entries(condition.where).forEach(([key, value]) => {
@@ -72,27 +113,29 @@ async function findFiles(db: Knex, condition: SelectFileCondition) {
                     query.andWhereRaw("??->>? = ?", ["metadata", key, value]);
                     break;
                 }
-                case "tagNames": break;
+                case "tagNames":
+                    break;
                 default: {
                     query.andWhere(key, value);
                 }
             }
         });
         if (condition.where.tagNames) {
-            query.join("fileTags", "files.id", "fileTags.fileId")
-            .join("tags", "fileTags.tagId", "tags.id")
-            .whereIn("tags.name", condition.where.tagNames);
+            query
+                .join("fileTags", "files.id", "fileTags.fileId")
+                .join("tags", "fileTags.tagId", "tags.id")
+                .whereIn("tags.name", condition.where.tagNames);
         }
     }
 
     if (condition.limit) {
         query.limit(condition.limit);
     }
-    return convertFilesWithMetadata(await query);
+    return (await query).map(toFile);
 }
 
 async function findTagsAll(db: Knex) {
-    return await db("tags").select("*") as Tag[];
+    return (await db("tags").select("*")) as Tag[];
 }
 
 async function findTagsByFileIds(db: Knex, fileIds: number[]) {
@@ -111,17 +154,17 @@ function extractTags(files: File[]) {
     return Array.from(tags).map(tag => ({ name: tag } as Tag));
 }
 
-function convertFilesWithMetadata(files: any[]) {
-    return files.map(file => {
-        const metadata = JSON.parse(file.metadata);
-        return { ...file, metadata };
-    }) as File[];
+function toFile(file: any): File {
+    const metadata = JSON.parse(file.metadata);
+    return { ...file, metadata };
 }
 
 export {
     SelectFileCondition,
     batchInsertFiles,
-    findFiles,
+    findFileWhere,
+    findFilesAll,
     findTagsAll,
     findTagsByFileIds,
+    toFile
 };
