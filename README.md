@@ -19,9 +19,9 @@ obsidian의 그래프를 위해 파일(Node), 파일간 링크(Link)의 관계�
 ### ObsidianDB 생성
 
 ```ts
-import { ObsidianDbBuilder } from "obsidian-db";
+import ObsidianDb from "obsidian-db";
 
-const obdb = new ObsidianDbBuilder("content")
+const obdb = ObsidianDb.builder()
     .withKnexConfig({
         client: "sqlite3",
         connection: {
@@ -36,9 +36,17 @@ const obdb = new ObsidianDbBuilder("content")
     // .addLinkExtractor(linkExtractor)
     .build();
 
-await obdb.init();
-
 export default obdb;
+```
+
+초기화 스크립트
+
+```ts
+import obdb from "obsidian-db";
+
+obdb.createTables();
+obdb.indexDirectory("content");
+
 ```
 
 - ObsidianDbBuilder는 ObsidianDB 인스턴스를 생성하는 빌더 클래스이다.
