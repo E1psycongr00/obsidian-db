@@ -18,40 +18,31 @@ import LinkExtractor from "./extractors/linkExtractor.js";
 interface DbConfig {
     knexConfig: Knex.Config;
     parseOptions: ParseOptions;
-    parseDirectory: string;
 }
 
 class ObsidianDb {
     private knexDb: Knex;
     private parser: Parser;
-    private parseDirectory: string;
 
-    constructor({ knexConfig, parseOptions, parseDirectory }: DbConfig) {
+    constructor({ knexConfig, parseOptions }: DbConfig) {
         this.knexDb = knex(knexConfig);
         this.parser = new Parser(
             parseOptions.buildAstOptions || {},
             parseOptions.linkExtractors || []
         );
-        this.parseDirectory = parseDirectory;
     }
 
-    public async init(force: boolean = false) {
-        if (!force) {
-            const hasFilesTable = await this.knexDb.schema.hasTable("files");
-            const hasLinksTable = await this.knexDb.schema.hasTable("links");
-            const hasTagsTable = await this.knexDb.schema.hasTable("tags");
-            const hasFileTagsTable = await this.knexDb.schema.hasTable("file_tags");
-            if (hasFilesTable && hasLinksTable && hasTagsTable && hasFileTagsTable) {
-                console.log("Database already exists & initialized. if you initilize, Use force 'true'.");
-                return;
-            }
-        }
+    public async createTables() {
         await createFilesTable(this.knexDb);
         await createLinkTable(this.knexDb);
         await createTagsTable(this.knexDb);
         await createFileTagsTable(this.knexDb);
-        await batchInsertDirectories(this.knexDb, this.parseDirectory, this.parser);
     }
+
+    public async indexDirectory(directory: string) {
+        await batchInsertDirectories(this.knexDb, directory, this.parser);
+    }
+
 
     public db() {
         return this.knexDb;
@@ -94,11 +85,6 @@ class ObsidianDbBuilder {
     private knexConfig: Knex.Config = {};
     private buildAstOptions: BuildAstOptions = {};
     private extractors: LinkExtractor[] = [];
-    private parseDirectory: string;
-
-    constructor(parseDirectory: string) {
-        this.parseDirectory = parseDirectory;
-    }
 
     withKnexConfig(knexConfig: Knex.Config) {
         this.knexConfig = knexConfig;
@@ -110,11 +96,6 @@ class ObsidianDbBuilder {
         return this;
     }
 
-    addLinkExtractor(extractor: LinkExtractor) {
-        this.extractors.push(extractor);
-        return this;
-    }
-
     build() {
         const parseOptions: ParseOptions = {
             buildAstOptions: this.buildAstOptions,
@@ -122,8 +103,7 @@ class ObsidianDbBuilder {
         };
         return new ObsidianDb({
             knexConfig: this.knexConfig,
-            parseOptions: parseOptions,
-            parseDirectory: this.parseDirectory,
+            parseOptions: parseOptions
         });
     }
 }
