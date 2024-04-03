@@ -32,6 +32,10 @@ class ObsidianDb {
         );
     }
 
+    public static builder() {
+        return new ObsidianDbBuilder();
+    }
+
     public async createTables() {
         await createFilesTable(this.knexDb);
         await createLinkTable(this.knexDb);
