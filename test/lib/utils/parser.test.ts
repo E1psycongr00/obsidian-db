@@ -39,11 +39,45 @@ describe("Parser", () => {
             const result = parser.parseMetadata(source);
             expect(result.tags).contain("tag1").contain("tag2").contain("tag3");
         });
+
+        it("should extract tags like dash-separated words", () => {
+            const parser = new Parser();
+            const source =
+                "---" +
+                "\ntitle: Hello World" +
+                "\ndate: 2021-01-01" +
+                "\ntags: " +
+                "\n  - tag1" +
+                "\n  - tag2" +
+                "\n---";
+            const result = parser.parseMetadata(source);
+            expect(result.tags).contain("tag1").contain("tag2");
+        });
+
+        it("empty tags should be an empty array", () => {
+            const parser = new Parser();
+            const source = 
+                "---" +
+                "\ntitle: Hello World" +
+                "\ndate: 2021-01-01" +
+                "\ntags: " +
+                "\n---";
+            const result = parser.parseMetadata(source);
+            expect(result.tags).toHaveLength(0);
+        });
+
+        it("should extract tags from body tags", () => {
+            const parser = new Parser();
+            const source = "---\ntitle: Hello World\ndate: 2021-01-01\ntags: [tag1, tag2]\n--- #tag1 #tag2 #tag3";
+            const result = parser.parseMetadata(source);
+            expect(result.tags).contain("tag1").contain("tag2").contain("tag3");
+            expect(result.tags).toHaveLength(3);
+        })
     });
 
     describe("extractLinks", () => {
         it("should extract links", () => {
-            const parser = new Parser({ permalinks: ["link"]});
+            const parser = new Parser({ permalinks: ["link"] });
             const source = "# Hello World [[link]]";
             const ast = parser.parseAst(source);
             const links = parser.parseLinks(ast, "source");
@@ -56,15 +90,21 @@ describe("Parser", () => {
         it("should parse file content", () => {
             const parser = new Parser();
             const filePath = path.resolve("test/__mock__/contents/A.md");
-            const {file, links} = parser.parseFile(filePath, "test/__mock__/contents");
+            const { file, links } = parser.parseFile(
+                filePath,
+                "test/__mock__/contents"
+            );
             expect(file).toBeTruthy();
             expect(links).toBeTruthy();
         });
 
-        it("index.md인 경우 urlPath가 '/'여가 한다" , () => {
+        it("index.md인 경우 urlPath가 '/'여가 한다", () => {
             const parser = new Parser();
             const filePath = path.resolve("test/__mock__/contents/index.md");
-            const {file} = parser.parseFile(filePath, "test/__mock__/contents");
+            const { file } = parser.parseFile(
+                filePath,
+                "test/__mock__/contents"
+            );
             expect(file.urlPath).toBe("/");
         });
     });
