@@ -65,15 +65,15 @@ class Parser {
 
     public parseMetadata(source: string): Metadata {
         const { data: metadata, content } = matter(source);
-        const tags = metadata?.tags || [];
+        const tags = new Set<string>(metadata?.tags || []);
         const hashtagRegex = /#[가-힣A-Za-z0-9_]+/g;
         let match;
         while ((match = hashtagRegex.exec(content)) !== null) {
-            tags.push(match[0].slice(1));
+            tags.add(match[0].slice(1));
         }
         return {
             title: metadata.title,
-            tags: tags,
+            tags: Array.from(tags),
             date: metadata.date,
         };
     }
