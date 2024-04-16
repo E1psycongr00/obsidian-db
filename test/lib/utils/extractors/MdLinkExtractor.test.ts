@@ -10,6 +10,6 @@ describe("MdLinkExtractor", () => {
         });
         const ast = parser.parseAst("[link!!](/test/__mock__/contents/A)");
         const links = extractor.extract(ast);
-        expect(links).toEqual(["/test/__mock__/contents/A"]);
+        expect(links).toEqual(["test/__mock__/contents/A"]);
     });
 });

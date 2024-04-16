@@ -31,7 +31,7 @@ describe("Parser", () => {
         });
     });
 
-    describe("extractMetadata", () => {
+    describe("parseMetadata", () => {
         it("should extract metadata", () => {
             const parser = new Parser();
             const source =
