@@ -1,7 +1,7 @@
 import { Knex } from "knex";
 import { Files, File, Tags, Tag, FileTags } from "../scheme/files.js";
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 200;
 
 async function batchInsertFiles(
     db: Knex,

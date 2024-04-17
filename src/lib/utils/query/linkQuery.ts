@@ -1,7 +1,7 @@
 import { Knex } from "knex";
 import { Link, Links } from "../scheme/links.js";
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 200;
 
 function batchInsertLinks(db: Knex, links: Link[], chunkSize = CHUNK_SIZE) {
     const linkSize = links.length;
