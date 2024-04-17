@@ -1,7 +1,7 @@
 import { Knex } from "knex";
 import { Files, File, Tags, Tag, FileTags } from "../scheme/files.js";
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 200;
 
 async function batchInsertFiles(
     db: Knex,
@@ -16,17 +16,23 @@ async function batchInsertFiles(
             const end = (i + 1) * chunkSize;
             const chunkFiles = files.slice(start, end);
 
-            const tansFiles = chunkFiles.map(file => {
+            const transFiles = chunkFiles.map(file => {
                 const metadata = JSON.stringify(file.metadata);
                 return { ...file, metadata };
             });
 
             const filesResult = await trx
-                .batchInsert(Files, tansFiles, chunkSize)
+                .batchInsert(Files, transFiles, chunkSize)
                 .returning(["id", "metadata"]);
 
+            const existingTags = await trx.select("name").from(Tags);
+            const existingTagNames = existingTags.map(tag => tag.name);
+
+            const newUniqueTag = extractTags(chunkFiles).filter(
+                tag => !existingTagNames.includes(tag.name)
+            );
             const tagsResult = await trx
-                .batchInsert(Tags, extractTags(chunkFiles), chunkSize)
+                .batchInsert(Tags, newUniqueTag, chunkSize)
                 .returning(["id", "name"]);
             const fileTags = [];
             for (const f of filesResult) {
@@ -59,12 +65,12 @@ interface SelectFileCondition {
 
 /**
  * 주어진 조건에 따라 데이터베이스에서 파일을 찾습니다.
- * 
+ *
  * 예시
  * ```ts
  * const file = await findFileWhere(db, { id: 1 });
  * ```
- * 
+ *
  * @param {Knex} db - 데이터베이스 연결을 나타내는 Knex 인스턴스입니다.
  * @param {Record<string, any>} condition - 파일을 필터링하는 조건입니다.
  * @returns {Promise<File>} - json metadata를 가공한 파일 객체 프로미스를 반환합니다.
@@ -166,5 +172,5 @@ export {
     findFilesAll,
     findTagsAll,
     findTagsByFileIds,
-    toFile
+    toFile,
 };
