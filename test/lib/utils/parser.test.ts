@@ -84,6 +84,14 @@ describe("Parser", () => {
             expect(links[0].source).toBe("source");
             expect(links[0].target).toBe("link");
         });
+
+        it("should not Error duplicate links", () => {
+            const parser = new Parser({ permalinks: ["link"] });
+            const source = "# Hello World [[link]] [[link]]";
+            const ast = parser.parseAst(source);
+            const links = parser.parseLinks(ast, "source");
+            expect(links).toHaveLength(1);
+        });
     });
 
     describe("parseFile", () => {

@@ -84,12 +84,15 @@ class Parser {
             const target = linkExtractor.extract(ast);
             targetLinks.push(...target);
         }
-        return targetLinks.map(targetPath => {
-            return {
+        const linkSet = new Set<string>();
+        targetLinks.forEach(targetPath => {
+            const link = {
                 source: sourceUrlPath,
                 target: targetPath,
             } as UrlLink;
+            linkSet.add(JSON.stringify(link));
         });
+        return Array.from(linkSet).map(linkStr => JSON.parse(linkStr));
     }
 
     private initProcessor(buildAstOptions: BuildAstOptions) {
